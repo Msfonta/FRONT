@@ -1,0 +1,11 @@
+.userId {
+    padding: 5px;
+}
+
+.userId-span{
+    font-weight: bold;
+}
+
+.userId-input {
+    width: 15px;
+}

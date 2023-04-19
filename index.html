@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./index.css" />
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>TELA DE USUARIOS</h1>
+    <div class="userId">
+        <span class="userId-span">userId</span>
+        <input class="userId-input" disabled type="text">
+    </div>
+    <div class="id">
+        <span class="id-span">id</span>
+        <input class="id-input" disabled type="text">
+    </div> 
+    <div class="title">
+        <span class="title-span">title</span>
+        <input class="title-input" disabled type="text">
+    </div> 
+    <div class="body">
+        <span class="body-span">body</span>
+        <textarea class="body-ta" disabled type="text"></textarea>
+    </div>
+    <div class="btn">
+        <button class="btnFuncao" onclick="getUser()" type="button">Receber dados</button>
+    </div>
+    <script src="./index.js"></script>
+</body>
+</html>
