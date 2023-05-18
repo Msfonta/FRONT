@@ -15,7 +15,7 @@ $(document).ready(function () {
         'showEasing': 'swing',
         'hideEasing': 'linear',
         'showMethod': 'fadeIn',
-        'hideMethod': 'fadeOut',
+        'hideMethod': 'fadeOut', 
     }
 
     var url = window.location.href
