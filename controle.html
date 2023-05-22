@@ -14,7 +14,7 @@
 
 	<!-- Mobile Metas -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
- 
+
 	<!-- Web Fonts  -->
 	<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Shadows+Into+Light"
 		rel="stylesheet" type="text/css">
@@ -24,6 +24,7 @@
 	<link rel="stylesheet" href="assets/vendor/font-awesome/css/font-awesome.css" />
 	<link rel="stylesheet" href="assets/vendor/magnific-popup/magnific-popup.css" />
 	<link rel="stylesheet" href="assets/vendor/bootstrap-datepicker/css/datepicker3.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 	<!-- Specific Page Vendor CSS -->
 	<link rel="stylesheet" href="assets/vendor/jquery-ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
@@ -199,10 +200,36 @@
 						</header> -->
 						<div class="panel-body"
 							style="background-color: #ffffff; overflow-y: auto; overflow-x: hidden; max-height: 730px;">
-							<div class="row" style="display: flex; align-items: center;">
-								<button class="btn btn-primary" style="margin: 0 15px 10px 15px;" data-toggle="tooltip"
-									data-placement="right" onclick="EntradaSaidaProdutos()"
-									title="Adicionar um produto.">Registro Manual</button>
+							<div class="row" style="display: flex; justify-content: space-between; align-items: center;">
+								<div class="btnRegistroManual" style="width: 20%;">
+									<button class="btn btn-primary" style="margin: 0 15px 10px 15px;"
+										data-toggle="tooltip" data-placement="right" onclick="EntradaSaidaProdutos()"
+										title="Adicionar um produto.">Registro Manual</button>
+								</div>
+								  <div class="btnBuscarEstoque col-sm-6" style="display: flex; align-items: center; width: 80%;">
+									<input id="inputProduto" type="search" class="form-control"
+										placeholder="Produto, Marca, Usuário ou Categoria..." style="margin-right: 15px; width: 25%;" />
+									<div class="divDtValidade col-sm-12" style="display: flex; width: 32%;">
+										<label style="margin-right: 20px;" for="dtValidadeEstoque">Dt: </label>
+										<input type="date" class="form-control" id="dtValidadeEstoque"
+											style="margin: 0 10px 0 10px;">
+									</div>
+									<div class="divBuscaOperacao" style="display: flex; align-items: center; width: 15%;">
+										<label style="margin-right: 10px;" for="selectOperacao">Operação: </label>
+										<select id="selectOperacao">
+											<option value="0" selected>Todos</option>
+											<option value="1">Saida</option>
+											<option value="2">Entrada</option>
+										</select>
+									</div>
+									<button class="btn btn-success" style="margin: 0 15px 10px 15px;"
+										data-toggle="tooltip" data-placement="top" onclick="searchEstoque()"
+										title="Buscar produto.">Buscar</button>
+										<button class="btn btn-danger" style="margin: 0 15px 10px 15px;"
+										data-toggle="tooltip" data-placement="top" onclick="searchEstoque()"
+										title="Gerar pdf."><i class="fa fa-file-pdf-o"></i> PDF</button>
+								</div>
+								</div>
 							</div>
 							<table class="table table-bordered table-striped mb-none" id="tbControle">
 								<thead>
@@ -225,16 +252,16 @@
 							aria-labelledby="ModalControleEstoqueLabel" aria-hidden="true">
 							<div class="modal-dialog" role="document">
 								<div class="modal-content">
-									<div style="background-color: #1D2127;" class="modal-header">
+									<div style="background-color: #1D2127; display: flex; justify-content: space-between;" class="modal-header">
 										<h4 style="color: white; text-align: center;" class="modal-title"
 											id="ModalControleEstoqueLabel"> Controle de Estoque
 										</h4>
 										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-											<span aria-hidden="true">&times;</span>
+											<span style="background-color: white" aria-hidden="true">X</span>
 										</button>
 									</div>
 									<div class="modal-body">
-										<div id="idCadastroProduto">
+										<form id="idCadastroProduto">
 											<div class="form-group row" style="display: flex; align-items: center;">
 												<label for="produtoEstoque" class="col-sm-2">Produto</label>
 												<div class="col-sm-5">
@@ -244,28 +271,30 @@
 												</div>
 												<label for="codigoProduto" class="col-sm-2">Código (SKU)</label>
 												<div class="col-sm-3">
-													<input disabled type="text" class="form-control" id="codigoProdutoEstoque">
+													<input disabled type="text" class="form-control"
+														id="codigoProdutoEstoque">
 												</div>
 											</div>
 											<div class="form-group row" style="display: flex; align-items: center;">
 												<label for="nomeUsuario" class="col-sm-1">Marca</label>
 												<div class="col-sm-5">
-													<input disabled type="text" class="form-control" id="marcaProdutoEstoque">
+													<input disabled type="text" class="form-control"
+														id="marcaProdutoEstoque">
 												</div>
 												<label for="nomeUsuario" class="col-sm-2">Categoria</label>
 												<div class="col-sm-4">
-													<input disabled type="text" class="form-control" id="categoriaProdutoEstoque">
+													<input disabled type="text" class="form-control"
+														id="categoriaProdutoEstoque">
 												</div>
 											</div>
-										</div>
+										</form>
 									</div>
 									<div class="modal-footer" style="display: flex; justify-content: space-around;">
-										<div class="btnClose">
-											<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-										</div>
-										<div class="btnActions" style="display: flex;">
-											<button style="width: 50%;" onclick="EntradaProduto(0)" type="button" class="btnSaidaEstoque btn btn-danger">Saida</button>
-											<button style="width: 50%;" onclick="EntradaProduto(1)" type="button" class="btnEntradaEstoque btn btn-success">Entrada</button>
+										<div class="btnActions" style="display: flex; width: 100%;">
+											<button style="width: 50%;" onclick="EntradaProduto(1)" type="button"
+												class="btnSaidaEstoque btn btn-danger">Saida</button>
+											<button style="width: 50%;" onclick="EntradaProduto(2)" type="button"
+												class="btnEntradaEstoque btn btn-success">Entrada</button>
 										</div>
 									</div>
 								</div>
@@ -283,6 +312,7 @@
 	<script src="assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 	<script src="assets/vendor/magnific-popup/magnific-popup.js"></script>
 	<script src="assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 	<!-- Specific Page Vendor -->
 	<script src="assets/vendor/jquery-ui/js/jquery-ui-1.10.4.custom.js"></script>
