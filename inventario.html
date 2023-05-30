@@ -1,0 +1,330 @@
+<!doctype html>
+<html class="fixed">
+
+<head>
+
+	<!-- Basic -->
+	<meta charset="UTF-8">
+
+	<title>Usuários</title>
+	<link rel="icon" type="image/x-icon" href="assets/images/download.png">
+	<meta name="keywords" content="HTML5 Admin Template" />
+	<meta name="description" content="Porto Admin - Responsive HTML5 Template">
+	<meta name="author" content="okler.net">
+
+	<!-- Mobile Metas -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+	<!-- Web Fonts  -->
+	<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Shadows+Into+Light"
+		rel="stylesheet" type="text/css">
+
+	<!-- Vendor CSS -->
+	<link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="assets/vendor/font-awesome/css/font-awesome.css" /> 
+	<link rel="stylesheet" href="assets/vendor/magnific-popup/magnific-popup.css" />
+	<link rel="stylesheet" href="assets/vendor/bootstrap-datepicker/css/datepicker3.css" />
+
+	<!-- Axios -->
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+	<!-- Jquery -->
+	<script src="https://code.jquery.com/jquery-3.6.4.min.js"
+		integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+
+	<!-- Toastr JS -->
+	<link rel="stylesheet" type="text/css"
+		href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
+	<!-- Theme CSS -->
+	<link rel="stylesheet" href="assets/stylesheets/theme.css" />
+
+	<!-- Skin CSS -->
+	<link rel="stylesheet" href="assets/stylesheets/skins/default.css" />
+
+	<!-- Theme Custom CSS -->
+	<link rel="stylesheet" href="assets/stylesheets/theme-custom.css">
+
+	<!-- Head Libs -->
+	<script src="assets/vendor/modernizr/modernizr.js"></script>
+
+</head>
+
+<body>
+	<section class="body">
+
+		<!-- start: header -->
+		<header class="header">
+			<div class="logo-container">
+				<a href="../" class="logo">
+					<img src="assets/images/logo.png" height="35" alt="Porto Admin" />
+				</a>
+				<div class="visible-xs toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html"
+					data-fire-event="sidebar-left-opened">
+					<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
+				</div>
+			</div>
+
+			<!-- start: search & user box -->
+			<div class="header-right">
+
+				<!-- <form action="pages-search-results.html" class="search nav-form">
+					<div class="input-group input-search">
+						<input type="text" class="form-control" name="q" id="q" placeholder="Search...">
+						<span class="input-group-btn">
+							<button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+						</span>
+					</div>
+				</form> -->
+
+				<span class="separator"></span>
+
+				<div id="userbox" class="userbox">
+					<a href="#" data-toggle="dropdown">
+						<div class="profile-info" data-lock-name="John Doe" data-lock-email="johndoe@okler.com">
+							<span class="accountName name"></span>
+						</div>
+
+						<i class="fa custom-caret"></i>
+					</a>
+
+					<div class="dropdown-menu">
+						<ul class="list-unstyled">
+							<li class="divider"></li>
+							<li>
+								<a role="menuitem" tabindex="-1" href="../myaccount.html"><i class="fa fa-user"></i> My
+									Profile</a>
+							</li>
+							<li>
+								<a role="menuitem" tabindex="-1" href="../signIn.html"><i class="fa fa-power-off"></i>
+									Logout</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<!-- end: search & user box -->
+		</header>
+		<!-- end: header -->
+
+		<div class="inner-wrapper">
+			<!-- start: sidebar -->
+			<aside id="sidebar-left" class="sidebar-left">
+
+				<div class="sidebar-header">
+					<div class="sidebar-toggle hidden-xs" data-toggle-class="sidebar-left-collapsed" data-target="html"
+						data-fire-event="sidebar-left-toggle">
+						<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
+					</div>
+				</div>
+
+				<div class="nano">
+					<div class="nano-content">
+						<nav id="menu" class="nav-main" role="navigation">
+							<ul class="nav nav-main">
+								<li>
+									<a href="../index.html">
+										<i class="fa fa-home" style="color: white;" aria-hidden="true"></i>
+										<span style="color: white;">Dashboard</span>
+									</a>
+								</li>
+								<li class="nav-parent">
+									<a>
+										<i class="fa fa-users" style="color: white;" aria-hidden="true"></i>
+										<span style="color: white;">Usuarios</span>
+									</a>
+									<ul class="nav nav-children" style="background-color: #525c69;">
+										<a href="./usuarios.html">
+											<i class="fa fa-list" style="color: white; padding-left: 50px;"
+												aria-hidden="true"></i>
+											<span style="color: white; padding-left: 10px;">Lista de Usuario</span>
+										</a>
+									</ul>
+									<ul class="nav nav-children" style="background-color: #525c69;">
+										<a href="./grupos.html">
+											<i class="fa fa-user" style="color: white; padding-left: 50px;"
+												aria-hidden="true"></i>
+											<span style="color: white; padding-left: 10px;">Grupos</span>
+										</a>
+									</ul>
+								</li>
+								<li class="nav-parent">
+									<a>
+										<i class="fa fa-paw" style="color: white;" aria-hidden="true"></i>
+										<span style="color: white;">Produtos</span>
+									</a>
+									<ul class="nav nav-children" style="background-color: #525c69;">
+										<a href="./categorias.html">
+											<i class="fa fa-th-large" aria-hidden="true"
+												style="color: white; padding-left: 50px;"></i>
+											<span style="color: white; padding-left: 10px;">Categorias</span>
+										</a>
+									</ul>
+									<ul class="nav nav-children" style="background-color: #525c69;">
+										<a href="./produtos.html">
+											<i class="fa fa-list" style="color: white; padding-left: 50px;"
+												aria-hidden="true"></i>
+											<span style="color: white; padding-left: 10px;">Lista</span>
+										</a>
+									</ul>
+								</li>
+								<li>
+									<a href="controle.html">
+										<i class="fa fa-shopping-cart" style="color: white;" aria-hidden="true"></i>
+										<span style="color: white;">Entrada e Saída</span>
+									</a>
+								</li>
+							</ul>
+						</nav>
+						<hr class="separator" />
+					</div>
+				</div>
+
+			</aside>
+			<!-- end: sidebar -->
+
+			<div class="inner-wrapper">
+
+				<section role="main" class="content-body">
+					<header class="page-header">
+						<h2>Lista de Usuários</h2>
+					</header>
+					<!-- start: page -->
+					<section class="panel">
+						<!-- <header class="panel-heading" style="border: 1px solid rgb(30, 21, 153);">
+							<h2 class="panel-title" style="color: white;">Usuários</h2>
+						</header> -->
+						<div class="panel-body"
+							style="background-color: #ffffff; overflow-y: auto; overflow-x: hidden; max-height: 730px; border: 3px solid rgba(128, 127, 141, 0.6);">
+							<div class="row" style="display: flex; align-items: center;">
+								<button class="btn btn-warning" style="margin: 0 15px 10px 15px;" data-toggle="tooltip"
+									data-placement="right" onclick="openModalUsuario()"
+									title="Adicionar um usuário.">Adicionar Usuário</button>
+							</div>
+							<div class="table-responsive">
+								<table class="table table-bordered table-striped mb-none" id="tbUsuarios">
+									<thead>
+										<tr>
+											<th width="3%">Id</th>
+											<th width="40%">Nome</th>
+											<th width="38%">Email</th>
+											<th width="5%">Grupo</th>
+											<th width="5%">Editar</th>
+											<th width="5%">Desabilitado</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</section>
+					<div class="modal fade" id="modalExclusaoUsuario" tabindex="-1" role="dialog"
+						aria-labelledby="modalExclusaoUsuarioLabel" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div style="background-color: rgb(30, 21, 153);" class="modal-header">
+									<h4 style="color: white; text-align: center;" class="modal-title"
+										id="modalExclusaoUsuarioLabel">
+									</h4>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div style="text-align: center;" class="modal-body">
+									<p style="font-size: 15px;"></p>
+								</div>
+								<div style="text-align: center;" class="modal-footer">
+									<button type="button" class="btnCloseModalExclusao btn btn-danger"
+										data-dismiss="modal">Não</button>
+									<button type="button" class="btnExclusao btn btn-success">Sim</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal fade" id="modalUsuario" tabindex="-1" role="dialog"
+						aria-labelledby="modalUsuarioLabel" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div style="background-color: rgb(30, 21, 153);" class="modal-header">
+									<h4 style="color: white; text-align: center;" class="modal-title"
+										id="modalUsuarioLabel">
+									</h4>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body">
+									<form id="formModalUsuario">
+										<div class="form-group row">
+											<label for="idUsuarioModal" class="col-xs-1">ID:</label>
+											<div class="col-sm-2">
+												<input type="text" class="form-control" id="idUsuarioModal" readonly>
+											</div>
+											<label for="nomeUsuarioModal" class="col-sm-1">Nome:</label>
+											<div class="col-sm-8">
+												<input type="text" class="form-control" id="nomeUsuarioModal">
+											</div>
+										</div>
+										<div class="form-group row">
+											<label for="emailUsuarioModal" class="col-sm-1">Email:</label>
+											<div class="col-sm-5">
+												<input type="text" class="form-control" id="emailUsuarioModal">
+											</div>
+											<label for="senhaUsuarioModal" class="col-sm-1">Senha:</label>
+											<div class="col-sm-5">
+												<input type="password" class="form-control" id="senhaUsuarioModal">
+											</div>
+										</div>
+										<div class="form-group row" style="display: flex; align-items: center;">
+											<label for="" class="col-sm-1">Grupo</label>
+											<div class="col-sm-2">
+												<select id="grupoUsuario" class="form-select">
+													<option selected disabled>Selecione...</option>
+
+												</select>
+											</div>
+										</div>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+									<button type="button" class="btnUsuario btn btn-success">Salvar</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- end: page -->
+				</section>
+			</div>
+	</section>
+
+	<!-- Vendor -->
+	<script src="assets/vendor/jquery/jquery.js"></script>
+	<script src="assets/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
+	<script src="assets/vendor/bootstrap/js/bootstrap.js"></script>
+	<script src="assets/vendor/nanoscroller/nanoscroller.js"></script>
+	<script src="assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+	<script src="assets/vendor/magnific-popup/magnific-popup.js"></script>
+	<script src="assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
+
+	<!-- Theme Base, Components and Settings -->
+	<script src="assets/javascripts/theme.js"></script>
+
+	<!-- Theme Custom -->
+	<script src="assets/javascripts/theme.custom.js"></script>
+
+	<!-- JS -->
+	<script src="./JS/Usuarios/usuarios.js"></script>
+	<script src="./JS/Usuarios/grupos.js"></script>
+	<script type="text/javascript"
+		src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+
+	<!-- Theme Initialization Files -->
+	<script src="assets/javascripts/theme.init.js"></script>
+
+</body>
+
+</html>

@@ -19,16 +19,15 @@ $(document).ready(function () {
     }
 
     $('#dtValidadeEstoque').flatpickr({
-        enableTime: true,
         mode: 'range',
         time_24hr: true,
-        dateFormat: 'd-m-Y H:i',
-        defaultHour: 0
+        dateFormat: 'd-m-Y',
+        defaultHour: 'today'
     })
 
     var url = window.location.href
 
-    if (url.split('localhost:5500/')[1] == 'controle.html') {
+    if (window.location.href == 'http://localhost/projetoMHR/controle.html') {
         getEstoque()
     }
 })
@@ -68,7 +67,7 @@ EntradaProduto = (operacao) => {
     id = $('.selectProdutos option:selected').val()
     usuario = JSON.parse(localStorage.getItem('dadosUsuario'))
 
-    axios.put(`${urlEstoque}/:id`, {
+    axios.put(`${urlEstoque}/${id}`, {
         id,
         operacao,
         usuario
@@ -114,3 +113,58 @@ searchEstoque = () => {
             })
         })
 }
+
+getPdfEstoque = () => {
+    dataInicial = $('#dtValidadeEstoque').val().split(' to ')[0]
+    dataFinal = $('#dtValidadeEstoque').val().split(' to ')[1]
+    busca = $('#inputProduto').val()
+    operacao = $('#selectOperacao').val()
+
+    if ($('.circleSpin').css('display') == 'none') {
+        $('.circleSpin').css('display', 'inline-block')
+    }
+
+
+    $('#ModalLoadingRel').modal('show')
+
+    axios.get(`${urlEstoque}/relatorio`, {
+        params: {
+            dataInicial,
+            dataFinal,
+            busca,
+            operacao
+        },
+    })
+        .then(async response => {
+            if (response.status = 200) {
+                await $('#ModalLoadingRel .modal-body').append(`<a><button class="btnPDF btn btn-success" onclick="downloadPdf('${response.data.message.filename}')">Download PDF</button></a>`)
+                await $('.circleSpin').css('display', 'none')
+
+            }
+        })
+}
+
+
+downloadPdf = (link) => {
+    axios.get(`${urlEstoque}/download`, {
+        params: {
+            link
+        },
+        responseType: 'blob'
+    }).
+        then(response => {
+            if (response.status = 200) {
+                const blob = new Blob([response.data], { type: 'application/pdf' })
+                const urll = window.URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.style.display = 'none'
+                a.href = urll
+                a.download = 'estoque.pdf'
+                a.click()
+                window.URL.revokeObjectURL(urll)
+                $('#ModalLoadingRel .modal-body a')[0].remove('button')
+                $('#ModalLoadingRel').modal('hide')
+                toastr.success('PDF Gerado com sucesso!')
+            }
+        })
+    }

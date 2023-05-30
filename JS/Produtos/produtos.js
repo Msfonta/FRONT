@@ -10,7 +10,7 @@ $(document).ready(function () {
         'preventDuplicates': false,
         'showDuration': '1000',
         'hideDuration': '1000',
-        'timeOut': '5000', 
+        'timeOut': '5000',
         'extendedTimeOut': '1000',
         'showEasing': 'swing',
         'hideEasing': 'linear',
@@ -19,7 +19,7 @@ $(document).ready(function () {
     }
     var url = window.location.href
 
-    if (url.split('localhost:5500/')[1] == 'produtos.html') {
+    if (window.location.href == 'http://localhost/projetoMHR/produtos.html') {
         getProdutos()
     }
 })
@@ -42,6 +42,118 @@ openModalProduto = () => {
     getListaCategorias()
     $('#codigoProduto').attr('disabled', false)
     $('#ModalProduto').modal('show')
+}
+
+openModalProdutoCpt = () => {
+    $('#formCadastroProdutoCpt').each(function () {
+        this.reset()
+    })
+    $('.selectProdutoCpt0').empty().attr('disabled', false)
+    axios.get(urlProduto)
+        .then(response =>
+            response.data.forEach(produto => {
+                $('.selectProdutoCpt0').append(`<option value=${produto.id}>${produto.nome}</option>`)
+            }))
+    $('.selectProdutoCpt0').prepend('<option selected disabled>Selecione...</option>')
+    $('#ModalProdutoCpt').modal('show')
+}
+
+let count = 0
+let qtde = []
+getInfoProduto = () => {
+    id = $(`.selectProdutoCpt${count} option:selected`).val()
+    axios.get(`${urlProduto}/${id}`)
+        .then(response => {
+            $(`.selectQtdeCpt${count}`).empty()
+            dados = response.data[0]
+            $(`#codigoProdutoCpt${count}`).val(dados.id)
+            for(i = 1; i <= dados.quantidade; i++){
+                $(`.selectQtdeCpt${count}`).append(`<option value="${i}">${i}</option>`)
+            }     
+            $(`.selectQtdeCpt${count}`).prepend('<option value="0" selected disabled>0</option>')       
+            $('#divAddProduto').append(`<button onclick="listaProdutoComposto()" type="button" class="btn btn-success"><i class="fa fa-plus"></i></button>`)
+                                        
+            count++;
+        })
+}
+
+let contador = 1;
+let idArray = []
+listaProdutoComposto = () => {
+    $('#divAddProduto').remove();
+    $(`.selectProdutoCpt${contador - 1}`).attr('disabled', true)
+    
+    valor = $(`.selectProdutoCpt${contador - 1} option`).length
+    if(valor > 2){
+        $('.divAdicionalProdutoSimples').append(`<div class="row divProdutoSimples${contador}" style="display: flex;align-items: center;">
+            <label for="nomeProdutoCpt" class="col-sm-2">Produto ${contador}</label>
+            <div class="col-sm-3">
+                <select onchange="getInfoProduto()" class="selectProdutoCpt${contador} form-select">
+                </select>
+            </div>
+            <label for="codigoProdutoCpt" class="col-sm-1">Código</label>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" id="codigoProdutoCpt${contador}" disabled>
+            </div>
+            <label for="qtdeProdutoCpt${contador}" class="col-sm-1">Qtde</label>
+                <div class="col-sm-2">
+                    <select class="selectQtdeCpt${contador} form-select">
+                    </select>
+                </div>
+            <div id="divAddProduto" class="col-sm-2"></div>
+        </div>`);
+    
+        $(`.selectProdutoCpt${contador}`).prepend('<option value="zero" selected disabled>Selecione...</option>')
+    } else {
+        $('#formCadastroProdutoCpt').append(`<div class="row divSemProdutos" style="display: flex;align-items: center; justify-content: center; margin-top:15px;">
+            <span style="font-weight:bold; color:red;"> Não há produtos para serem selecionados! </span>
+        </div>`);
+    }
+
+    idArray.push($(`.selectProdutoCpt${contador - 1}`).val())
+   
+    axios.get(urlProduto, {
+        params: {
+            idArray,
+            remover: 1
+        }
+    })
+        .then(response => {
+            response.data.forEach(produto => {
+                $(`.selectProdutoCpt${contador}`).append(`<option value="${produto.id}">${produto.nome}</option>`);
+                $(`.selectQtdeCpt${contador}`).append(`<option value="${produto.id}">${produto.quantidade}</option>`);
+            });
+            contador++;
+            $('.btnSalvarComposto').attr('onclick', `salvarComposto(${contador})`)
+        });
+}
+
+closeModalProdutoCpt = () => {
+    window.location.reload()
+    // $('#formCadastroProdutoCpt').each(function () {
+    //     this.reset()
+    // })
+    // count = 0;
+    // contador = 1;
+    // $('.selectProdutoCpt0').empty()
+    // $('.divAdicionalProdutoSimples').remove()
+    // $('.divSemProdutos').remove()
+    // $('#ModalProdutoCpt').modal('hide')
+}
+
+salvarComposto = (quantidade) => {
+    valores = []
+    for (i = 0; i < quantidade - 1; i++){
+            valores[i] = $(`.selectProdutoCpt${i} option:selected`).val()
+    }
+    id = $('#codProdutoCpt').val()
+    nome = $('#nomeProdutoCpt').val()
+
+    axios.post(`${urlProduto}/cadastrocpt`, { 
+        id,
+        nome, 
+        valores
+    })
 }
 
 

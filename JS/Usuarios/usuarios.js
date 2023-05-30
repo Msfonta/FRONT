@@ -27,23 +27,20 @@ $(document).ready(function () {
         }
     }
 
-    if (url.split('localhost:5500/')[1] == 'index.html') {
+    if (window.location.href ==  'http://localhost/projetoMHR/index.html') {
         $('.accountName').append(dadosUsuario.nome)
         if (dadosUsuario.id_grupo == 3) {
             $('.listaUsuarios').css('display', 'none')
         }
     }
 
-    if (url.split('localhost:5500/')[1] == 'usuarios.html') {
-        if (dadosUsuario.id_grupo == 4) {
-            $('.accountName').append(dadosUsuario.nome)
-            getUser()
-        } else {
-            irNaoAutorizado()
-        }
+    if (window.location.href == 'http://localhost/projetoMHR/usuarios.html') {
+        getUser()
     }
 
-    if (url.split('localhost:5500/')[1] == 'myaccount.html') {
+    if (window.location.href ==  'http://localhost/projetoMHR/myaccount.html') {
+        console.log('teste')
+        debugger
         $('.accountName').append(dadosUsuario.nome)
         $('.nomeCompleto').val(dadosUsuario.nome)
         $('.emailUsuario').val(dadosUsuario.email)

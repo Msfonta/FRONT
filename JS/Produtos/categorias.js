@@ -19,7 +19,7 @@ $(document).ready(function () {
     }
     var url = window.location.href
 
-    if (url.split('localhost:5500/')[1] == 'categorias.html') {
+    if (window.location.href == 'http://localhost/projetoMHR/categorias.html') {
         getCategorias()
     }
 
