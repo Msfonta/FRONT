@@ -15,32 +15,44 @@ $(document).ready(function () {
         'showEasing': 'swing',
         'hideEasing': 'linear',
         'showMethod': 'fadeIn',
-        'hideMethod': 'fadeOut', 
+        'hideMethod': 'fadeOut',
     }
+
+    $('#inputEmailLogin').keypress(function (e) {
+        if (e.keyCode == 13) {
+            e.preventDefault()
+            login();
+        }
+    })
+
+    $('#inputSenhaLogin').keypress(function (e) {
+        if (e.keyCode == 13) {
+            e.preventDefault()
+            login();
+        }
+    })
+
+
 
     var url = window.location.href
     var dadosUsuario = JSON.parse(localStorage.getItem('dadosUsuario'))
 
-    if (url.split('localhost:5500/')[1] == 'signUp.html') {
-        if (dadosUsuario.id_grupo == 3) {
-            irNaoAutorizado()
-        }
-    }
-
-    if (window.location.href ==  'http://localhost/projetoMHR/index.html') {
+    if (window.location.href == 'http://localhost/projetoMHR/index.html') {
         $('.accountName').append(dadosUsuario.nome)
-        if (dadosUsuario.id_grupo == 3) {
+        if (dadosUsuario.id_grupo != 4) {
             $('.listaUsuarios').css('display', 'none')
         }
     }
 
     if (window.location.href == 'http://localhost/projetoMHR/usuarios.html') {
-        getUser()
+        if (dadosUsuario.id_grupo != 4) {
+            irNaoAutorizado()
+        } else {
+            getUser()
+        }
     }
 
-    if (window.location.href ==  'http://localhost/projetoMHR/myaccount.html') {
-        console.log('teste')
-        debugger
+    if (window.location.href == 'http://localhost/projetoMHR/myaccount.html') {
         $('.accountName').append(dadosUsuario.nome)
         $('.nomeCompleto').val(dadosUsuario.nome)
         $('.emailUsuario').val(dadosUsuario.email)
@@ -82,6 +94,11 @@ cadastroUsuario = () => {
     senha = $('#senhaUsuarioModal').val()
     grupo = $('#grupoUsuario').val()
 
+    let regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!regex.test(email)) {
+        toastr.warning("O e-mail é inválido.");
+        return false
+    }
 
     axios.post(`${url}/cadastro`, {
         nome,
@@ -104,7 +121,7 @@ cadastroUsuario = () => {
 }
 
 login = () => {
-    email = $('.email-input').val()
+    email = $('.email-input').val().toLowerCase()
     senha = $('.senha-input').val()
 
     axios.post(`${url}/login`, {
@@ -112,14 +129,13 @@ login = () => {
         senha
     })
         .then(response => {
-            debugger
             if (response.data.status) {
                 localStorage.setItem('dadosUsuario', JSON.stringify(response.data.usuario[0]))
                 localStorage.setItem('token', JSON.stringify(response.data.token))
                 localStorage.setItem('isLogged', true)
                 irHome()
             } else {
-                alert('Erro ao logar')
+                toastr.warning(response.data.message)
             }
         })
         .catch(error => console.log(error))

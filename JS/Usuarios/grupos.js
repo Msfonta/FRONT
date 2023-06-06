@@ -11,16 +11,21 @@ $(document).ready(function () {
         'showDuration': '1000',
         'hideDuration': '1000',
         'timeOut': '5000',
-        'extendedTimeOut': '1000', 
+        'extendedTimeOut': '1000',
         'showEasing': 'swing',
         'hideEasing': 'linear',
         'showMethod': 'fadeIn',
         'hideMethod': 'fadeOut',
     }
     var url = window.location.href
+    var dadosUsuario = JSON.parse(localStorage.getItem('dadosUsuario'))
 
     if (window.location.href == 'http://localhost/projetoMHR/grupos.html') {
-        getListaGrupos()
+        if (!dadosUsuario || dadosUsuario.id_grupo != 4) {
+            irNaoAutorizado()
+        } else {
+            getListaGrupos()
+        }
     }
 })
 

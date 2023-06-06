@@ -206,34 +206,36 @@
 					<section class="panel">
 						<header class="panel-heading" style="background-color:#1D2127">
 							<h2 class="panel-title" style="color: white;">Produtos</h2>
-						</header>
-						<div class="panel-body" style="overflow-y: auto; overflow-x: hidden; max-height: 650px;">
 							<div class="row dropdown" style="display: flex; align-items: center;">
 								<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1"
 									data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
-									style="margin: 10px 5px 10px 5px;">
+									style="margin: 10px 5px 10px 5px; color: white;">
 									Adicionar produto
 									<span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-									<li><a style="cursor: pointer;" onclick="openModalProduto()">Produto Simples</a>
-									</li>
-									<li><a style="cursor: pointer;" onclick="openModalProdutoCpt()">Produto Composto</a>
-									</li>
+									<li class="dropdown-header"style="font-weight: bold; color: black;">Produto Simples</li>
+									<li><a style="cursor: pointer;" onclick="openModalProduto()">Novo</a></li>
+									<li role="separator" class="divider"></li>
+									<li class="dropdown-header" style="font-weight: bold; color: black;">Produto Composto</li>
+									<li><a style="cursor: pointer;" onclick="openModalInserirProdutoCpt()">Novo</a></li>
+									<li><a style="cursor: pointer;">Conversão</a></li>
 								</ul>
 							</div>
+						</header>
+						<div class="panel-body" style="overflow-y: auto; overflow-x: hidden; max-height: 650px;">
 							<div class="table-responsive">
 								<table class="table table-bordered table-striped mb-none" id="tbProdutos">
 									<thead>
 										<tr>
-											<th scope="col" width="5%">ID</th>
-											<th scope="col" width="18%">Nome</th>
-											<th scope="col" width="10%">Marca</th>
+											<th scope="col" width="3%">#</th>
+											<th scope="col" width="17%">Nome</th>
+											<th scope="col" width="12%">Marca</th>
 											<th scope="col" width="10%">Categoria</th>
 											<th scope="col" width="8%">Dt.Validade</th>
 											<th scope="col" width="5%">Qtde</th>
-											<th scope="col" width="9%">P. Liquido</th>
-											<th scope="col" width="9%">P. Bruto</th>
+											<th scope="col" width="7%">P. Liquido</th>
+											<th scope="col" width="7%">P. Bruto</th>
 											<th scope="col" width="5%">Ativo</th>
 											<th scope="col" width="5%">Editar</th>
 											<th scope="col" width="5%">Remover</th>
@@ -313,7 +315,7 @@
 												</div>
 												<label for="qtdeProduto" class="col-sm-2">Quantidade</label>
 												<div class="col-sm-4">
-													<input type="number" class="form-control" id="qtdeProduto">
+													<input type="number" class="form-control" id="qtdeProduto" min="1">
 												</div>
 											</div>
 											<div class="form-group row" style="display: flex; align-items: center;">
@@ -323,7 +325,7 @@
 														title="Em KG"></i>
 												</label>
 												<div class="col-sm-3">
-													<input type="number" class="form-control" id="pesoLiquidoProduto">
+													<input type="number" class="form-control" id="pesoLiquidoProduto" min="1">
 												</div>
 												<label for="pesoBrutoProduto" class="col-sm-3">Peso Bruto
 													<i class="fa fa-info-circle" style="font-size: 14px; color:blue"
@@ -331,7 +333,7 @@
 														title="Em KG"></i>
 												</label>
 												<div class="col-sm-3">
-													<input type="number" class="form-control" id="pesoBrutoProduto">
+													<input type="number" class="form-control" id="pesoBrutoProduto" min="1">
 												</div>
 											</div>
 										</div>
@@ -358,32 +360,74 @@
 									</button>
 								</div>
 								<div class="modal-body">
-									<form id="formCadastroProdutoCpt">
-										<div class="form-group row" style="display: flex; align-items: center;">
-											<label for="nomeProduto" class="col-sm-1">Nome</label>
-											<div class="col-sm-5">
-												<input type="text" class="form-control" id="nomeProdutoCpt">
+									<form id="formCadastroProduto">
+										<div id="idCadastroProduto">
+											<div class="form-group row" style="display: flex; align-items: center;">
+												<label for="nomeProduto" class="col-sm-1">Nome</label>
+												<div class="col-sm-5">
+													<input type="text" class="form-control" id="nomeProdutoCpt" required>
+												</div>
+												<label for="codigoProduto" class="col-sm-2">Código (SKU)</label>
+												<div class="col-sm-3">
+													<input type="text" class="form-control" id="codProdutoCpt" required>
+												</div>
 											</div>
-											<label for="codigoProduto" class="col-sm-2">Código</label>
-											<div class="col-sm-3">
-												<input type="text" class="form-control" id="codProdutoCpt">
+											<div class="form-group row" style="display: flex; align-items: center;">
+												<label for="nomeUsuario" class="col-sm-1">Marca</label>
+												<div class="col-sm-5">
+													<input type="text" class="form-control" id="marcaProdutoCpt" required>
+												</div>
+												<label for="categoriaProduto" class="col-sm-1">Tipo</label>
+												<div class="col-sm-2">
+													<select id="categoriaProdutoCpt" class="form-select" required>
+														<option selected disabled>Selecione...</option>
+													</select>
+												</div>
+											</div>
+											<div class="form-group row" style="display: flex; align-items: center;">
+												<label for="dtValidadeProdutoCpt" class="col-sm-2">Dt Validade</label>
+												<div class="col-sm-4">
+													<input type="date" class="form-control" id="dtValidadeProdutoCpt" required>
+												</div>
+												<label for="qtdeProduto" class="col-sm-2">Quantidade</label>
+												<div class="col-sm-4">
+													<input type="number" class="form-control" id="qtdeProdutoCpt" min="1" required>
+												</div>
+											</div>
+											<div class="form-group row" style="display: flex; align-items: center;">
+												<label for="pesoLiquidoProduto" class="col-sm-3">Peso Líquido
+													<i class="fa fa-info-circle" style="font-size: 14px; color:blue"
+														aria-hidden="true" data-toggle="tooltip" data-placement="bottom"
+														title="Em KG"></i>
+												</label>
+												<div class="col-sm-3">
+													<input type="number" class="form-control" id="pesoLiquidoProdutoCpt" required>
+												</div>
+												<label for="pesoBrutoProduto" class="col-sm-3">Peso Bruto
+													<i class="fa fa-info-circle" style="font-size: 14px; color:blue"
+														aria-hidden="true" data-toggle="tooltip" data-placement="bottom"
+														title="Em KG"></i>
+												</label>
+												<div class="col-sm-3">
+													<input type="number" class="form-control" id="pesoBrutoProdutoCpt" required>
+												</div>
 											</div>
 										</div>
+										<hr class="hr" />
 										<div class="row divProdutoSimples0" style="display: flex;align-items: center;">
-											<label for="nomeProdutoCpt" class="col-sm-2">Produto</label>
+											<label for="nomeProdutoCpt" class="col-sm-1">Produto</label>
 											<div class="col-sm-3">
-												<select onchange="getInfoProduto()" class="selectProdutoCpt0 form-select">
+												<select onchange="getInfoProduto()" class="selectProdutoCpt0 form-select" required>
 												</select>
 											</div>
-											<label for="codigoProdutoCpt" class="col-sm-1">Código</label>
+											<label for="codigoProdutoCpt0" class="col-sm-1">Código</label>
 											<div class="col-sm-3">
 												<input type="text" class="form-control" id="codigoProdutoCpt0" disabled>
 											</div>
-											<label for="qtdeProdutoCpt" class="col-sm-1">Qtde</label>
-											<div class="col-sm-2">
-												<select class="selectQtdeCpt0 form-select">
-												</select>
-											</div>
+											<label for="qtdeProdutoCpt0" class="col-sm-1">Qtde</label>
+												<div class="col-sm-3">
+													<input type="number" class="form-control" id="qtdeProdutoCpt0" required min="1">
+												</div>
 											<div id="divAddProduto" class="col-sm-2">
 												
 											</div>
@@ -391,6 +435,77 @@
 										<div class="row divAdicionalProdutoSimples" style="padding-left: 15px; padding-right: 15px;">
 												
 										</div>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" onclick="closeModalProdutoCpt()" class="btn btn-danger" data-dismiss="modal">Fechar</button>
+									<button type="button" class="btnSalvarComposto btn btn-success">Salvar</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal fade" id="ModalEditarProdutoCpt" tabindex="-1" role="dialog"
+						aria-labelledby="ModalEditarProdutoCptLabel" aria-hidden="true"
+						data-keyboard="false" data-backdrop="static">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div style="background-color: #1D2127;" class="modal-header">
+									<h4 style="color: white; text-align: center;" class="modal-title"
+										id="modalEditarProdutoCptLabel"> Editar Produto Composto
+									</h4>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body">
+									<form id="formEdicaoProdutoCpt">
+										<div class="form-group row" style="display: flex; align-items: center;">
+											<label for="nomeProdutoEdit" class="col-sm-1">Nome</label>
+											<div class="col-sm-5">
+												<input type="text" class="form-control" id="divNomeProdutoCpt">
+											</div>
+											<label for="codigoProdutoEdit" class="col-sm-2">Código</label>
+											<div class="col-sm-3">
+												<input type="text" class="form-control" id="divCodProdutoCpt">
+											</div>
+										</div>
+										<div class="form-group row" style="display: flex; align-items: center;">
+											<label for="marcaProdutoCpt" class="col-sm-1">Marca</label>
+											<div class="col-sm-5">
+												<input type="text" class="form-control" id="marcaProdutoCptEdit">
+											</div>
+											<label for="categoriaProduto" class="col-sm-2">Tipo</label>
+											<div class="col-sm-3">
+												<select id="categoriaProdutoCptEdit" class="form-select">
+													<option selected disabled>Selecione...</option>
+												</select>
+											</div>
+										</div>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" onclick="closeModalProdutoCpt()" class="btn btn-danger" data-dismiss="modal">Fechar</button>
+									<button type="button" class="btnSalvarComposto btn btn-success">Salvar</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal fade" id="ModalShowComposto" tabindex="-1" role="dialog"
+						aria-labelledby="ModalEditarProdutoCptLabel" aria-hidden="true"
+						data-keyboard="false" data-backdrop="static">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div style="background-color: #1D2127;" class="modal-header">
+									<h4 style="color: white; text-align: center;" class="modal-title"
+										id="modalEditarProdutoCptLabel"> Produto Composto
+									</h4>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body">
+									<form id="formProdutoComposto">
+										
 									</form>
 								</div>
 								<div class="modal-footer">

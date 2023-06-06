@@ -1,4 +1,5 @@
 const urlProduto = "http://localhost:3000/produto"
+const urlComposto = "http://localhost:3000/composto"
 
 $(document).ready(function () {
     toastr.options = {
@@ -17,17 +18,36 @@ $(document).ready(function () {
         'showMethod': 'fadeIn',
         'hideMethod': 'fadeOut',
     }
-    var url = window.location.href
+
+    var dadosUsuario = JSON.parse(localStorage.getItem('dadosUsuario'))
 
     if (window.location.href == 'http://localhost/projetoMHR/produtos.html') {
-        getProdutos()
+        if (!dadosUsuario || dadosUsuario.id_grupo != 4) {
+            irNaoAutorizado()
+        } else {
+            getProdutos()
+        }
     }
 })
-getListaCategorias = () => {
-    axios.get(`${urlCategoria}/`)
+
+irNaoAutorizado = () => {
+    window.location.href = "pages404.html"
+}
+
+getListaCategorias = (tipo) => {
+    axios.get(urlCategoria, {
+        params: {
+            tipo
+        }
+    })
         .then(response => {
+            $('#categoriaProduto').prepend('<option value="0" disabled>Selecione...</option>')
             response.data.forEach(dado => {
-                $('#categoriaProduto').append(`<option value=${dado.id}>${dado.nome}</option>`)
+                if (tipo == 1) {
+                    $('#categoriaProduto').append(`<option value=${dado.id}>${dado.nome}</option>`)
+                } else {
+                    $('#categoriaProdutoCpt').append(`<option value=${dado.id}>${dado.nome}</option>`)
+                }
             })
         })
 }
@@ -39,23 +59,36 @@ openModalProduto = () => {
     })
     $('.btnSalvarProduto').attr('onclick', 'cadastrarProduto()')
     $('#categoriaProduto').html('')
-    getListaCategorias()
+    getListaCategorias(1)
     $('#codigoProduto').attr('disabled', false)
     $('#ModalProduto').modal('show')
 }
 
-openModalProdutoCpt = () => {
+openModalInserirProdutoCpt = () => {
     $('#formCadastroProdutoCpt').each(function () {
         this.reset()
     })
-    $('.selectProdutoCpt0').empty().attr('disabled', false)
+
     axios.get(urlProduto)
-        .then(response =>
-            response.data.forEach(produto => {
-                $('.selectProdutoCpt0').append(`<option value=${produto.id}>${produto.nome}</option>`)
-            }))
-    $('.selectProdutoCpt0').prepend('<option selected disabled>Selecione...</option>')
-    $('#ModalProdutoCpt').modal('show')
+        .then(response => {
+            if (!response.data) {
+                toastr.warning('Sem produto disponível para criar um Produto Composto!')
+            } else {
+                $('.selectProdutoCpt0').empty().attr('disabled', false)
+                getListaCategorias(2)
+                axios.get(urlProduto, {
+                    params: {
+                        composto: 0
+                    }
+                })
+                    .then(response =>
+                        response.data.forEach(produto => {
+                            $('.selectProdutoCpt0').append(`<option value=${produto.id}>${produto.nome}</option>`)
+                        }))
+                $('.selectProdutoCpt0').prepend('<option selected disabled>Selecione...</option>')
+                $('#ModalProdutoCpt').modal('show')
+            }
+        })
 }
 
 let count = 0
@@ -64,15 +97,16 @@ getInfoProduto = () => {
     id = $(`.selectProdutoCpt${count} option:selected`).val()
     axios.get(`${urlProduto}/${id}`)
         .then(response => {
-            $(`.selectQtdeCpt${count}`).empty()
             dados = response.data[0]
+            $(`.selectQtdeCpt${count}`).empty()
             $(`#codigoProdutoCpt${count}`).val(dados.id)
-            for(i = 1; i <= dados.quantidade; i++){
+            for (i = 1; i <= dados.quantidade; i++) {
                 $(`.selectQtdeCpt${count}`).append(`<option value="${i}">${i}</option>`)
-            }     
-            $(`.selectQtdeCpt${count}`).prepend('<option value="0" selected disabled>0</option>')       
+                $(`#qtdeProdutoCpt${count}`).val(dados.quantidade)
+            }
+
+            $(`.selectQtdeCpt${count}`).prepend('<option value="0" selected disabled>0</option>')
             $('#divAddProduto').append(`<button onclick="listaProdutoComposto()" type="button" class="btn btn-success"><i class="fa fa-plus"></i></button>`)
-                                        
             count++;
         })
 }
@@ -82,9 +116,9 @@ let idArray = []
 listaProdutoComposto = () => {
     $('#divAddProduto').remove();
     $(`.selectProdutoCpt${contador - 1}`).attr('disabled', true)
-    
+
     valor = $(`.selectProdutoCpt${contador - 1} option`).length
-    if(valor > 2){
+    if (valor > 2) {
         $('.divAdicionalProdutoSimples').append(`<div class="row divProdutoSimples${contador}" style="display: flex;align-items: center;">
             <label for="nomeProdutoCpt" class="col-sm-2">Produto ${contador}</label>
             <div class="col-sm-3">
@@ -96,26 +130,26 @@ listaProdutoComposto = () => {
                 <input type="text" class="form-control" id="codigoProdutoCpt${contador}" disabled>
             </div>
             <label for="qtdeProdutoCpt${contador}" class="col-sm-1">Qtde</label>
-                <div class="col-sm-2">
-                    <select class="selectQtdeCpt${contador} form-select">
-                    </select>
+            <div class="col-sm-3">
+            <input type="number" class="form-control" id="qtdeProdutoCpt${contador}" required min="1">
+        </div>
                 </div>
             <div id="divAddProduto" class="col-sm-2"></div>
         </div>`);
-    
+
         $(`.selectProdutoCpt${contador}`).prepend('<option value="zero" selected disabled>Selecione...</option>')
     } else {
         $('#formCadastroProdutoCpt').append(`<div class="row divSemProdutos" style="display: flex;align-items: center; justify-content: center; margin-top:15px;">
             <span style="font-weight:bold; color:red;"> Não há produtos para serem selecionados! </span>
         </div>`);
     }
-
     idArray.push($(`.selectProdutoCpt${contador - 1}`).val())
-   
+
     axios.get(urlProduto, {
         params: {
             idArray,
-            remover: 1
+            remover: 1,
+            composto: 0
         }
     })
         .then(response => {
@@ -143,17 +177,42 @@ closeModalProdutoCpt = () => {
 
 salvarComposto = (quantidade) => {
     valores = []
-    for (i = 0; i < quantidade - 1; i++){
-            valores[i] = $(`.selectProdutoCpt${i} option:selected`).val()
+    for (i = 0; i < quantidade - 1; i++) {
+        valores[i] = { cod: $(`.selectProdutoCpt${i} option:selected`).val(), qtde: $(`#qtdeProdutoCpt${i}`).val() }
     }
-    id = $('#codProdutoCpt').val()
     nome = $('#nomeProdutoCpt').val()
+    codigoSKU = $('#codProdutoCpt').val()
+    dtValidade = $('#dtValidadeProdutoCpt').val()
+    qntde = $('#qtdeProdutoCpt').val()
+    itensPCaixa = $('#itensCaixa').val()
+    pesoLiquido = $('#pesoLiquidoProdutoCpt').val()
+    pesoBruto = $('#pesoBrutoProdutoCpt').val()
+    marca = $('#marcaProdutoCpt').val()
+    categoria_id = $('#categoriaProdutoCpt').val()
 
-    axios.post(`${urlProduto}/cadastrocpt`, { 
+    axios.post(`${urlProduto}/cadastrocomposto`, {
         id,
-        nome, 
+        nome,
+        codigoSKU,
+        dtValidade,
+        qntde,
+        itensPCaixa,
+        pesoLiquido,
+        pesoBruto,
+        marca,
+        categoria_id,
         valores
     })
+        .then(response => {
+            if (response.data.status) {
+                $('#tbProdutos tbody').html('')
+                getProdutos()
+                toastr.success(response.data.message)
+                $('#ModalProdutoCpt').modal('hide')
+            } else {
+                toastr.warning(response.data.message)
+            }
+        })
 }
 
 
@@ -190,10 +249,12 @@ cadastrarProduto = () => {
 }
 
 getProdutos = () => {
+    let contador = 1
     axios.get(`${urlProduto}`)
         .then(response => {
             response.data.forEach(dado => {
-                $('#tbProdutos tbody').append(`<tr id=tr${dado.id}><td class="id">${dado.id}</td><td class="nome">${dado.nome}</td><td class="marca">${dado.marca}</td><td class="tipo">${dado.categoriaproduto}</td><td class="dtValidade" >${moment(dado.dtValidade).format('DD/MM/YYYY')}</td><td align="center" class="qtde" >${dado.quantidade}</td><td class="pLiquido" >${dado.pesoLiquido}</td><td class="pBruto" >${dado.pesoBruto}</td><td align="center" class=exc>${dado.excluido == 0 ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td align="center" ><a onclick="openModalEditarProduto(${dado.codigoSKU})" style="cursor:pointer;" class="on-default edit-row"><i id="cbEditarProduto(${dado.id})" style="color:orange" class="fa fa-pencil"></i></a></td><td align="center" ><a onclick="openModalExclusaoProduto(${dado.codigoSKU})" style="cursor:pointer;" class="on-default edit-row"><i id="cbRemoverProduto(${dado.codigoSKU})" style="color:red" class="fa fa-trash-o"></i></a></td></tr>`)
+                $('#tbProdutos tbody').append(`<tr id=tr${dado.id}><td class="id">${contador}</td><td class="nome">${dado.pcomposto ? `${dado.nome} <i onclick="openModalProdutoComposto(${dado.pcomposto})" class="fa fa-plus" aria-hidden="true" style="cursor:pointer;"></i>` : dado.nome}</td><td class="marca">${dado.marca}</td><td class="tipo">${dado.categoriaproduto}</td><td class="dtValidade" >${dado.dtValidade ? moment(dado.dtValidade).format('DD/MM/YYYY') : ''}</td><td align="center" class="qtde" >${dado.quantidade}</td><td class="pLiquido" >${dado.pesoLiquido ? dado.pesoLiquido : ''}</td><td class="pBruto" >${dado.pesoBruto ? dado.pesoBruto : ''}</td><td align="center" class=exc>${dado.excluido == 0 ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td align="center" ><a onclick="openModalEditarProduto(${dado.id})" style="cursor:pointer;" class="on-default edit-row"><i id="cbEditarProduto(${dado.id})" style="color:orange" class="fa fa-pencil"></i></a></td><td align="center" ><a onclick="openModalExclusaoProduto(${dado.id})" style="cursor:pointer;" class="on-default edit-row"><i id="cbRemoverProduto(${dado.id})" style="color:red" class="fa fa-trash-o"></i></a></td></tr>`)
+                contador++
             })
 
         })
@@ -205,9 +266,92 @@ openModalExclusaoProduto = (id) => {
     $('#modalExclusaoProduto').modal('show')
 }
 
+openModalEditarProdutoCpt = (id) => {
+    $('#ModalEditarProdutoCpt').modal('show')
+    axios.get(`${urlProduto}/${id}`)
+        .then(response => {
+            dados = response.data[0]
+            $('#divNomeProdutoCpt').val(dados.nome)
+            $('#marcaProdutoCptEdit').val(dados.marca)
+            $('#categoriaProdutoCptEdit option').text(dados.nomecategoria).val(dados.categoria)
+            $('#divCodProdutoCpt').val(dados.id).prop('disabled', 'disabled')
+        })
+}
+
+openModalProdutoComposto = (id) => {
+    $('#ModalShowComposto').modal('show')
+    axios.get(`${urlProduto}/composto/${id}`)
+        .then(response => {
+            if (response.status = 200) {
+                response.data.forEach(dado => {
+                    $('#formProdutoComposto').append(`<div class="row divProdutos${dado.idproduto}" style="display: flex;align-items: center; padding-bottom: 15px;">
+                                            <label class="col-sm-1">Produto</label>
+											<div class="col-sm-3">
+                                            <select type="text" class="form-select">
+                                                <option>${dado.nome}</option>
+                                            </select>
+											</div>
+											<label class="col-sm-1">Qtde</label>
+											<div class="col-sm-2">
+                                            <input type="number" class="form-control" value="${dado.quantidade}">
+											</div>
+                                            <div class="col-sm-2">
+                                                <button type="button" onclick="removerComposto(${id}, ${dado.idproduto})" class="btn btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
+                                            </div>
+										</div>`)
+                })
+                $('#formProdutoComposto').append(`<div class="row produtoNovoComposto" style="display: flex; align-item;center; padding-left: 15px">
+                                                    <button onclick="produtoNovoComposto()" type="button" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Produto</button>
+                                                </div>`)
+            }
+        })
+
+}
+
+removerComposto = (idComposto, idProduto) => {
+    axios.put(`${urlComposto}/delete/${idComposto}`, {
+        idProduto
+    })
+    .then(response => {
+        if(response.data.status){
+            $(`.divProdutos${idProduto}`).remove()
+            toastr.success(response.data.message)
+        } else {
+            console.log(response.data.debug)
+            toastr.warning(response.data.message)
+        }
+    })
+}
+
+produtoNovoComposto = () => {
+    $('.produtoNovoComposto').css('display', 'none')
+    $('#formProdutoComposto')
+    .append(`<div class="row divProdutos" style="display: flex;align-items: center; padding-bottom: 15px;">
+    <label class="col-sm-1">Produto</label>
+    <div class="col-sm-3">
+    <select id="selectProdutos" type="text" class="form-select">
+    </select>
+    </div>
+    <label class="col-sm-1">Qtde</label>
+    <div class="col-sm-2">
+    <input type="number" class="form-control">
+    </div>
+</div>`)
+
+    axios.get(urlProduto, {
+        params: {
+            composto: 0
+        }
+    })
+    .then(response => {
+        response.data.forEach(produto => {
+            $('#selectProdutos').append(`<option value=${produto.id}>${produto.nome}</option>`)
+        })
+    })
+}
+
 openModalEditarProduto = (id) => {
     $('#modalProdutoLabel').text('').append('Editar Produto')
-    getListaCategorias()
 
     axios.get(`${urlProduto}/${id}`)
         .then(response => {
@@ -218,8 +362,8 @@ openModalEditarProduto = (id) => {
             $('#pesoLiquidoProduto').val(dados.pesoLiquido)
             $('#pesoBrutoProduto').val(dados.pesoBruto)
             $('#marcaProduto').val(dados.marca)
-            $(`#categoriaProduto option[value=${dados.idcategoria}]`).prop('selected', 'selected')
-            $('#codigoProduto').val(dados.codigoSKU).prop('disabled', 'disabled')
+            $('#categoriaProduto option').text(dados.nomecategoria).val(dados.categoria)
+            $('#codigoProduto').val(dados.id).prop('disabled', 'disabled')
         })
 
     $(`.cbEditarProduto${id}`).prop('checked', false)
@@ -231,7 +375,7 @@ removerProduto = (id) => {
     axios.put(`${urlProduto}/delete/${id}`)
         .then(response => {
             if (response.data.status) {
-                $(`.#tbProdutos tbody #tr${id}`).remove()
+                $(`#tbProdutos tbody #tr${id}`).remove()
                 toastr.success('Usuário removido com sucesso!')
                 $('#modalExclusaoProduto').modal('hide')
             }

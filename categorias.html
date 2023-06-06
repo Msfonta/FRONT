@@ -203,10 +203,10 @@
 									class="btnAddCategoria btn btn-success"><i style="padding-right: 5px;"
 										class="fa fa-plus-circle" aria-hidden="true"></i>Categoria</button>
 							</div>
-							<div id="idCadastroCategoria" class="form-group row col-sm-4"
+							<form id="idCadastroCategoria" class="form-group row col-sm-4"
 								style="display: none; margin: 10px; background-color: #ccc; box-shadow: 5px 10px; border-radius: 13px;">
 								<div class="form-group row" style="margin: 11px 0 0 -5px;">
-									<label style="color: black;" for="nomeGrupo" class="col-sm-2">Nome:</label>
+									<label style="color: black;" for="nomeCategoria" class="col-sm-2">Nome:</label>
 									<div class="col-sm-9">
 										<input type="text" class="form-control" id="nomeCategoria" aria-required="true">
 									</div>
@@ -215,19 +215,26 @@
 											class="fa fa-times-circle" aria-hidden="true"></i>
 									</div>
 								</div>
+								<div class="form-group row" style="margin: 11px 0 0 -5px;">
+									<label class="col-sm-1" for="radioSimples">Produto Simples</label>
+									<input type="radio" id="radio1" class="col-sm-5" value="1" name="radioTipo">
+									<label class="col-sm-1" for="radioComposto">Produto Composto</label>
+									<input type="radio" id="radio2" class="col-sm-5" value="2" name="radioTipo">
+								</div>
 								<div class="form-group row">
-									<button style="margin: 15px;" onclick="salvarCategoria()"
+									<button style="margin: 15px;" type="submit" onclick="salvarCategoria()"
 										class="btnSalvarCategoria btn btn-success">Salvar
 										Categoria</button>
 								</div>
-							</div>
+							</form>
 							<div class="panel-body" style="background-color: #ffffff;">
 								<div class="table-responsive">
 									<table class="table table-bordered table-striped mb-none" id="tbCategorias">
 										<thead>
 											<tr>
 												<th scope="col" width="3%">#</th>
-												<th scope="col" width="91%">Nome</th>
+												<th scope="col" width="76%">Nome</th>
+												<th scope="col" width="15%">Tipo</th>
 												<th scope="col" width="3%">Editar</th>
 												<th scope="col" width="3%">Remover</th>
 											</tr>

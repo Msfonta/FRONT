@@ -26,11 +26,20 @@ $(document).ready(function () {
     })
 
     var url = window.location.href
+    var dadosUsuario = JSON.parse(localStorage.getItem('dadosUsuario'))
 
     if (window.location.href == 'http://localhost/projetoMHR/controle.html') {
-        getEstoque()
+        if (!dadosUsuario || dadosUsuario.id_grupo != 4) {
+            irNaoAutorizado()
+        } else {
+            getEstoque()
+        }
     }
 })
+
+irNaoAutorizado = () => {
+    window.location.href = "pages404.html"
+}
 
 
 EntradaSaidaProdutos = () => {
