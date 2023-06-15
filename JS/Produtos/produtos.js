@@ -182,7 +182,6 @@ salvarComposto = () => {
         $('.divProdutoSimples').eq(i).addClass(`classProduto${i}`)
         valores[i] = { cod: $(`.classProduto${i} select option:selected`).val(), qtde: parseInt($(`.classProduto${i} input`).val()) }
     }
-    debugger
     composto = {
         valores,
         nome: $('#nomeProdutoCpt').val(),
