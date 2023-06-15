@@ -1,5 +1,6 @@
 const urlProduto = "http://localhost:3000/produto"
-const urlComposto = "http://localhost:3000/composto"
+let urlComposto = "http://localhost:3000/composto"
+let urlCategoria = "http://localhost:3000/categoria"
 
 $(document).ready(function () {
     toastr.options = {
@@ -69,9 +70,13 @@ openModalInserirProdutoCpt = () => {
         this.reset()
     })
 
-    axios.get(urlProduto)
+    axios.get(urlProduto, {
+        params: {
+            composto: 0
+        }
+    })
         .then(response => {
-            if (!response.data) {
+            if (!response.data.length) {
                 toastr.warning('Sem produto disponível para criar um Produto Composto!')
             } else {
                 $('.selectProdutoCpt0').empty().attr('disabled', false)
@@ -97,58 +102,45 @@ getInfoProduto = () => {
     id = $(`.selectProdutoCpt${count} option:selected`).val()
     axios.get(`${urlProduto}/${id}`)
         .then(response => {
+            $(`#divAddProduto${count - 1} #btnListaProdutoComposto`).remove()
+
             dados = response.data[0]
-            $(`.selectQtdeCpt${count}`).empty()
-            $(`#codigoProdutoCpt${count}`).val(dados.id)
+            $(`.selectProdutoCpt${count}`).attr('disabled', true)
+            $(`#codigoProdutoCpt${count}`).text(dados.id)
             for (i = 1; i <= dados.quantidade; i++) {
                 $(`.selectQtdeCpt${count}`).append(`<option value="${i}">${i}</option>`)
-                $(`#qtdeProdutoCpt${count}`).val(dados.quantidade)
             }
-
-            $(`.selectQtdeCpt${count}`).prepend('<option value="0" selected disabled>0</option>')
-            $('#divAddProduto').append(`<button onclick="listaProdutoComposto()" type="button" class="btn btn-success"><i class="fa fa-plus"></i></button>`)
+            $(`#qtdeProdutoCpt${count}`).val(1)
+            $(`#divAddProduto${count}`)
+                .append(`<button id="removeComposto${count}" onclick="removeProdutoListaComposto(${count})" type="button" class="btn btn-danger"><i class="fa fa-times"></i></button>
+                         <button id="btnListaProdutoComposto" onclick="listaProdutoComposto()" type="button" class="btn btn-success"><i class="fa fa-plus"></i></button>`)
             count++;
         })
 }
 
 let contador = 1;
-let idArray = []
 listaProdutoComposto = () => {
-    $('#divAddProduto').remove();
-    $(`.selectProdutoCpt${contador - 1}`).attr('disabled', true)
-
-    valor = $(`.selectProdutoCpt${contador - 1} option`).length
-    if (valor > 2) {
-        $('.divAdicionalProdutoSimples').append(`<div class="row divProdutoSimples${contador}" style="display: flex;align-items: center;">
-            <label for="nomeProdutoCpt" class="col-sm-2">Produto ${contador}</label>
+    $('.divAdicionalProdutoSimples').append(`<div class="row divProdutoSimples" id="prod${contador}" style="display: flex;align-items: center;">
+            <label for="nomeProdutoCpt" class="col-sm-1">Produto</label>
             <div class="col-sm-3">
                 <select onchange="getInfoProduto()" class="selectProdutoCpt${contador} form-select">
                 </select>
             </div>
-            <label for="codigoProdutoCpt" class="col-sm-1">Código</label>
-            <div class="col-sm-3">
-                <input type="text" class="form-control" id="codigoProdutoCpt${contador}" disabled>
-            </div>
-            <label for="qtdeProdutoCpt${contador}" class="col-sm-1">Qtde</label>
-            <div class="col-sm-3">
-            <input type="number" class="form-control" id="qtdeProdutoCpt${contador}" required min="1">
-        </div>
+            <label for="codigoProdutoCpt${contador}" class="col-sm-1">Código:</label>
+                <div class="col-sm-4">
+                <span style="font-size: 20px; font-weight: bold;" id="codigoProdutoCpt${contador}"></span>
                 </div>
-            <div id="divAddProduto" class="col-sm-2"></div>
+            <label for="qtdeProdutoCpt${contador}" class="col-sm-1">Qtde</label>
+            <div class="col-sm-2">
+                <input type="number" class="form-control" id="qtdeProdutoCpt${contador}" required min="1">
+            </div>
+            <div id="divAddProduto${contador}" class="col-sm-3" style="display:flex; justify-content:space-between;"></div>
         </div>`);
 
-        $(`.selectProdutoCpt${contador}`).prepend('<option value="zero" selected disabled>Selecione...</option>')
-    } else {
-        $('#formCadastroProdutoCpt').append(`<div class="row divSemProdutos" style="display: flex;align-items: center; justify-content: center; margin-top:15px;">
-            <span style="font-weight:bold; color:red;"> Não há produtos para serem selecionados! </span>
-        </div>`);
-    }
-    idArray.push($(`.selectProdutoCpt${contador - 1}`).val())
+    $(`.selectProdutoCpt${contador}`).prepend('<option value="0" selected disabled>Selecione...</option>')
 
     axios.get(urlProduto, {
         params: {
-            idArray,
-            remover: 1,
             composto: 0
         }
     })
@@ -160,6 +152,14 @@ listaProdutoComposto = () => {
             contador++;
             $('.btnSalvarComposto').attr('onclick', `salvarComposto(${contador})`)
         });
+}
+
+removeProdutoListaComposto = (cont) => {
+    if ($('.divProdutoSimples').length > 1) {
+        $(`#prod${cont}`).remove()
+    } else {
+        $(`#removeComposto${cont}`).remove()
+    }
 }
 
 closeModalProdutoCpt = () => {
@@ -175,33 +175,28 @@ closeModalProdutoCpt = () => {
     // $('#ModalProdutoCpt').modal('hide')
 }
 
-salvarComposto = (quantidade) => {
+salvarComposto = () => {
     valores = []
-    for (i = 0; i < quantidade - 1; i++) {
-        valores[i] = { cod: $(`.selectProdutoCpt${i} option:selected`).val(), qtde: $(`#qtdeProdutoCpt${i}`).val() }
+    let quantidade = $('.divProdutoSimples').length
+    for (i = 0; i < quantidade; i++) {
+        $('.divProdutoSimples').eq(i).addClass(`classProduto${i}`)
+        valores[i] = { cod: $(`.classProduto${i} select option:selected`).val(), qtde: parseInt($(`.classProduto${i} input`).val()) }
     }
-    nome = $('#nomeProdutoCpt').val()
-    codigoSKU = $('#codProdutoCpt').val()
-    dtValidade = $('#dtValidadeProdutoCpt').val()
-    qntde = $('#qtdeProdutoCpt').val()
-    itensPCaixa = $('#itensCaixa').val()
-    pesoLiquido = $('#pesoLiquidoProdutoCpt').val()
-    pesoBruto = $('#pesoBrutoProdutoCpt').val()
-    marca = $('#marcaProdutoCpt').val()
-    categoria_id = $('#categoriaProdutoCpt').val()
-
+    debugger
+    composto = {
+        valores,
+        nome: $('#nomeProdutoCpt').val(),
+        codigoSKU: $('#codProdutoCpt').val(),
+        dtValidade: $('#dtValidadeProdutoCpt').val(),
+        qntde: $('#qtdeProdutoCpt').val(),
+        itensPCaixa: $('#itensCaixa').val(),
+        pesoLiquido: $('#pesoLiquidoProdutoCpt').val(),
+        pesoBruto: $('#pesoBrutoProdutoCpt').val(),
+        marca: $('#marcaProdutoCpt').val(),
+        categoria_id: $('#categoriaProdutoCpt').val()
+    }
     axios.post(`${urlProduto}/cadastrocomposto`, {
-        id,
-        nome,
-        codigoSKU,
-        dtValidade,
-        qntde,
-        itensPCaixa,
-        pesoLiquido,
-        pesoBruto,
-        marca,
-        categoria_id,
-        valores
+        composto
     })
         .then(response => {
             if (response.data.status) {
@@ -217,26 +212,20 @@ salvarComposto = (quantidade) => {
 
 
 cadastrarProduto = () => {
-    nome = $('#nomeProduto').val()
-    codigoSKU = $('#codigoProduto').val()
-    dtValidade = $('#dtValidadeProduto').val()
-    quantidade = $('#qtdeProduto').val()
-    itensPCaixa = $('#itensCaixa').val()
-    pesoLiquido = $('#pesoLiquidoProduto').val()
-    pesoBruto = $('#pesoBrutoProduto').val()
-    marca = $('#marcaProduto').val()
-    categoria_id = $('#categoriaProduto').val()
+    produto = {
+        nome: $('#nomeProduto').val(),
+        codigoSKU: $('#codigoProduto').val(),
+        dtValidade: $('#dtValidadeProduto').val(),
+        quantidade: $('#qtdeProduto').val(),
+        itensPCaixa: $('#itensCaixa').val(),
+        pesoLiquido: $('#pesoLiquidoProduto').val(),
+        pesoBruto: $('#pesoBrutoProduto').val(),
+        marca: $('#marcaProduto').val(),
+        categoria_id: $('#categoriaProduto').val()
+    }
 
     axios.post(`${urlProduto}/cadastro`, {
-        nome,
-        codigoSKU,
-        dtValidade,
-        quantidade,
-        itensPCaixa,
-        pesoLiquido,
-        pesoBruto,
-        marca,
-        categoria_id
+        produto
     }).then(response => {
         if (response.data.status) {
             $('#tbProdutos tbody').html('')
@@ -253,7 +242,7 @@ getProdutos = () => {
     axios.get(`${urlProduto}`)
         .then(response => {
             response.data.forEach(dado => {
-                $('#tbProdutos tbody').append(`<tr id=tr${dado.id}><td class="id">${contador}</td><td class="nome">${dado.pcomposto ? `${dado.nome} <i onclick="openModalProdutoComposto(${dado.pcomposto})" class="fa fa-plus" aria-hidden="true" style="cursor:pointer;"></i>` : dado.nome}</td><td class="marca">${dado.marca}</td><td class="tipo">${dado.categoriaproduto}</td><td class="dtValidade" >${dado.dtValidade ? moment(dado.dtValidade).format('DD/MM/YYYY') : ''}</td><td align="center" class="qtde" >${dado.quantidade}</td><td class="pLiquido" >${dado.pesoLiquido ? dado.pesoLiquido : ''}</td><td class="pBruto" >${dado.pesoBruto ? dado.pesoBruto : ''}</td><td align="center" class=exc>${dado.excluido == 0 ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td align="center" ><a onclick="openModalEditarProduto(${dado.id})" style="cursor:pointer;" class="on-default edit-row"><i id="cbEditarProduto(${dado.id})" style="color:orange" class="fa fa-pencil"></i></a></td><td align="center" ><a onclick="openModalExclusaoProduto(${dado.id})" style="cursor:pointer;" class="on-default edit-row"><i id="cbRemoverProduto(${dado.id})" style="color:red" class="fa fa-trash-o"></i></a></td></tr>`)
+                $('#tbProdutos tbody').append(`<tr id=tr${dado.id}><td class="id">${contador}</td><td class="nome">${dado.nome}</td><td align="center">${dado.pcomposto ? `<i onclick="openModalProdutoComposto(${dado.pcomposto})" class="fa fa-plus" aria-hidden="true" style="cursor:pointer;"></i>` : ''}</td><td class="marca">${dado.marca}</td><td class="tipo">${dado.categoriaproduto}</td><td class="dtValidade" >${dado.dtValidade ? moment(dado.dtValidade).format('DD/MM/YYYY') : ''}</td><td align="center" class="qtde" >${dado.quantidade}</td><td class="pLiquido" >${dado.pesoLiquido ? dado.pesoLiquido : ''}</td><td class="pBruto" >${dado.pesoBruto ? dado.pesoBruto : ''}</td><td align="center" class=exc>${dado.excluido == 0 ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td align="center" ><a onclick="openModalEditarProduto(${dado.id})" style="cursor:pointer;" class="on-default edit-row"><i id="cbEditarProduto(${dado.id})" style="color:orange" class="fa fa-pencil"></i></a></td><td align="center" ><a onclick="openModalExclusaoProduto(${dado.id})" style="cursor:pointer;" class="on-default edit-row"><i id="cbRemoverProduto(${dado.id})" style="color:red" class="fa fa-trash-o"></i></a></td></tr>`)
                 contador++
             })
 
@@ -266,20 +255,24 @@ openModalExclusaoProduto = (id) => {
     $('#modalExclusaoProduto').modal('show')
 }
 
-openModalEditarProdutoCpt = (id) => {
-    $('#ModalEditarProdutoCpt').modal('show')
-    axios.get(`${urlProduto}/${id}`)
+updateProdutoComposto = (idComposto, idProduto) => {
+    quantidade = $(`#qtdeProdutoComposto${idProduto}`).val()
+    axios.put(`${urlComposto}/${idComposto}`, {
+        idProduto,
+        quantidade
+    })
         .then(response => {
-            dados = response.data[0]
-            $('#divNomeProdutoCpt').val(dados.nome)
-            $('#marcaProdutoCptEdit').val(dados.marca)
-            $('#categoriaProdutoCptEdit option').text(dados.nomecategoria).val(dados.categoria)
-            $('#divCodProdutoCpt').val(dados.id).prop('disabled', 'disabled')
+            if (response.data.status) {
+                toastr.success(response.data.message)
+            } else {
+                toastr.warning(response.data.message)
+            }
         })
 }
 
 openModalProdutoComposto = (id) => {
     $('#ModalShowComposto').modal('show')
+    $('.btnEditarComposto').attr('onclick')
     axios.get(`${urlProduto}/composto/${id}`)
         .then(response => {
             if (response.status = 200) {
@@ -293,11 +286,14 @@ openModalProdutoComposto = (id) => {
 											</div>
 											<label class="col-sm-1">Qtde</label>
 											<div class="col-sm-2">
-                                            <input type="number" class="form-control" value="${dado.quantidade}">
+                                            <input type="number" id="qtdeProdutoComposto${dado.idproduto}" class="form-control" value="${dado.quantidade}">
 											</div>
-                                            <div class="col-sm-2">
+                                            <div class="col-sm-1">
                                                 <button type="button" onclick="removerComposto(${id}, ${dado.idproduto})" class="btn btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
                                             </div>
+                                            <div class="col-sm-2">
+                                            <button type="button" data-toggle="tooltip" data-placement="right" title="Atualizar o produto" onclick="updateProdutoComposto(${id}, ${dado.idproduto})" class="btn btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
+                                        </div>
 										</div>`)
                 })
                 $('#formProdutoComposto').append(`<div class="row produtoNovoComposto" style="display: flex; align-item;center; padding-left: 15px">
@@ -309,24 +305,26 @@ openModalProdutoComposto = (id) => {
 }
 
 removerComposto = (idComposto, idProduto) => {
-    axios.put(`${urlComposto}/delete/${idComposto}`, {
-        idProduto
-    })
-    .then(response => {
-        if(response.data.status){
-            $(`.divProdutos${idProduto}`).remove()
-            toastr.success(response.data.message)
-        } else {
-            console.log(response.data.debug)
-            toastr.warning(response.data.message)
+    axios.delete(`${urlComposto}/delete/${idComposto}`, {
+        data: {
+            idProduto
         }
     })
+        .then(response => {
+            if (response.data.status) {
+                $(`.divProdutos${idProduto}`).remove()
+                toastr.success(response.data.message)
+            } else {
+                console.log(response.data.debug)
+                toastr.warning(response.data.message)
+            }
+        })
 }
 
 produtoNovoComposto = () => {
     $('.produtoNovoComposto').css('display', 'none')
     $('#formProdutoComposto')
-    .append(`<div class="row divProdutos" style="display: flex;align-items: center; padding-bottom: 15px;">
+        .append(`<div class="row divProdutos" style="display: flex;align-items: center; padding-bottom: 15px;">
     <label class="col-sm-1">Produto</label>
     <div class="col-sm-3">
     <select id="selectProdutos" type="text" class="form-select">
@@ -343,11 +341,11 @@ produtoNovoComposto = () => {
             composto: 0
         }
     })
-    .then(response => {
-        response.data.forEach(produto => {
-            $('#selectProdutos').append(`<option value=${produto.id}>${produto.nome}</option>`)
+        .then(response => {
+            response.data.forEach(produto => {
+                $('#selectProdutos').append(`<option value=${produto.id}>${produto.nome}</option>`)
+            })
         })
-    })
 }
 
 openModalEditarProduto = (id) => {
@@ -355,6 +353,7 @@ openModalEditarProduto = (id) => {
 
     axios.get(`${urlProduto}/${id}`)
         .then(response => {
+
             dados = response.data[0]
             $('#nomeProduto').val(dados.nome)
             $('#dtValidadeProduto').val(moment(dados.dtValidade).format('YYYY-MM-DD'))
@@ -376,7 +375,10 @@ removerProduto = (id) => {
         .then(response => {
             if (response.data.status) {
                 $(`#tbProdutos tbody #tr${id}`).remove()
-                toastr.success('Usuário removido com sucesso!')
+                toastr.success(response.data.message)
+                $('#modalExclusaoProduto').modal('hide')
+            } else {
+                toastr.warning(response.data.message)
                 $('#modalExclusaoProduto').modal('hide')
             }
         })
@@ -394,10 +396,10 @@ editarProduto = (id) => {
     }
 
     axios.put(`${urlProduto}/${id}`, {
-        produto: produto
+        produto
     })
         .then(response => {
-            if (response.status = 200) {
+            if (response.status == 200) {
                 $(`#tbProdutos tbody #tr${id} .nome`).text(response.data.nome)
                 $(`#tbProdutos tbody #tr${id} .dtValidade`).text(moment(response.data.dtValidade).format('DD/MM/YYYY'))
                 $(`#tbProdutos tbody #tr${id} .qtde`).text(response.data.qtde)

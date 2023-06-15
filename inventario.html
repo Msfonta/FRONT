@@ -123,7 +123,7 @@
 						<nav id="menu" class="nav-main" role="navigation">
 							<ul class="nav nav-main">
 								<li>
-									<a href="../index.html">
+									<a href="index.html">
 										<i class="fa fa-home" style="color: white;" aria-hidden="true"></i>
 										<span style="color: white;">Dashboard</span>
 									</a>
@@ -134,14 +134,14 @@
 										<span style="color: white;">Usuarios</span>
 									</a>
 									<ul class="nav nav-children" style="background-color: #525c69;">
-										<a href="./usuarios.html">
+										<a href="usuarios.html">
 											<i class="fa fa-list" style="color: white; padding-left: 50px;"
 												aria-hidden="true"></i>
 											<span style="color: white; padding-left: 10px;">Lista de Usuario</span>
 										</a>
 									</ul>
 									<ul class="nav nav-children" style="background-color: #525c69;">
-										<a href="./grupos.html">
+										<a href="grupos.html">
 											<i class="fa fa-user" style="color: white; padding-left: 50px;"
 												aria-hidden="true"></i>
 											<span style="color: white; padding-left: 10px;">Grupos</span>
@@ -154,14 +154,14 @@
 										<span style="color: white;">Produtos</span>
 									</a>
 									<ul class="nav nav-children" style="background-color: #525c69;">
-										<a href="./categorias.html">
+										<a href="categorias.html">
 											<i class="fa fa-th-large" aria-hidden="true"
 												style="color: white; padding-left: 50px;"></i>
 											<span style="color: white; padding-left: 10px;">Categorias</span>
 										</a>
 									</ul>
 									<ul class="nav nav-children" style="background-color: #525c69;">
-										<a href="./produtos.html">
+										<a href="produtos.html">
 											<i class="fa fa-list" style="color: white; padding-left: 50px;"
 												aria-hidden="true"></i>
 											<span style="color: white; padding-left: 10px;">Lista</span>
@@ -172,6 +172,12 @@
 									<a href="controle.html">
 										<i class="fa fa-shopping-cart" style="color: white;" aria-hidden="true"></i>
 										<span style="color: white;">Entrada e Saída</span>
+									</a>
+								</li>
+								<li>
+									<a href="inventario.html">
+										<i class="fa fa-archive" style="color: white;" aria-hidden="true"></i>
+										<span style="color: white;">Inventário</span>
 									</a>
 								</li>
 							</ul>
@@ -187,7 +193,7 @@
 
 				<section role="main" class="content-body">
 					<header class="page-header">
-						<h2>Lista de Usuários</h2>
+						<h2>Inventário</h2>
 					</header>
 					<!-- start: page -->
 					<section class="panel">
@@ -195,29 +201,28 @@
 							<h2 class="panel-title" style="color: white;">Usuários</h2>
 						</header> -->
 						<div class="panel-body"
-							style="background-color: #ffffff; overflow-y: auto; overflow-x: hidden; max-height: 730px; border: 3px solid rgba(128, 127, 141, 0.6);">
+							style="background-color: #ffffff; overflow-y: auto; overflow-x: hidden; max-height: 730px;">
 							<div class="row" style="display: flex; align-items: center;">
-								<button class="btn btn-warning" style="margin: 0 15px 10px 15px;" data-toggle="tooltip"
-									data-placement="right" onclick="openModalUsuario()"
-									title="Adicionar um usuário.">Adicionar Usuário</button>
-							</div>
-							<div class="table-responsive">
-								<table class="table table-bordered table-striped mb-none" id="tbUsuarios">
-									<thead>
-										<tr>
-											<th width="3%">Id</th>
-											<th width="40%">Nome</th>
-											<th width="38%">Email</th>
-											<th width="5%">Grupo</th>
-											<th width="5%">Editar</th>
-											<th width="5%">Desabilitado</th>
-										</tr>
-									</thead>
-									<tbody>
-									</tbody>
-								</table>
+								<button class="btn btn-info" style="margin: 0 15px 10px 15px;" data-toggle="tooltip"
+									data-placement="right" onclick=""
+									title="">Análise Contagem</button>
 							</div>
 						</div>
+						<table class="table table-bordered table-striped mb-none" id="tbInventario"
+							style="border: 1px solid black;">
+							<thead>
+								<tr>
+									<th scope="col" width="5%">#</th>
+									<th scope="col" width="50%">Produto</th>
+									<th scope="col" width="20%">Estoque Físico</th>
+									<th scope="col" width="20%">Estoque Sistema</th>
+									<th scope="col" width="5%">Diferença</th>
+								</tr>
+							</thead>
+							<tbody>
+
+							</tbody>
+						</table>
 					</section>
 					<div class="modal fade" id="modalExclusaoUsuario" tabindex="-1" role="dialog"
 						aria-labelledby="modalExclusaoUsuarioLabel" aria-hidden="true">
@@ -238,58 +243,6 @@
 									<button type="button" class="btnCloseModalExclusao btn btn-danger"
 										data-dismiss="modal">Não</button>
 									<button type="button" class="btnExclusao btn btn-success">Sim</button>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="modal fade" id="modalUsuario" tabindex="-1" role="dialog"
-						aria-labelledby="modalUsuarioLabel" aria-hidden="true">
-						<div class="modal-dialog" role="document">
-							<div class="modal-content">
-								<div style="background-color: rgb(30, 21, 153);" class="modal-header">
-									<h4 style="color: white; text-align: center;" class="modal-title"
-										id="modalUsuarioLabel">
-									</h4>
-									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>
-								</div>
-								<div class="modal-body">
-									<form id="formModalUsuario">
-										<div class="form-group row">
-											<label for="idUsuarioModal" class="col-xs-1">ID:</label>
-											<div class="col-sm-2">
-												<input type="text" class="form-control" id="idUsuarioModal" readonly>
-											</div>
-											<label for="nomeUsuarioModal" class="col-sm-1">Nome:</label>
-											<div class="col-sm-8">
-												<input type="text" class="form-control" id="nomeUsuarioModal">
-											</div>
-										</div>
-										<div class="form-group row">
-											<label for="emailUsuarioModal" class="col-sm-1">Email:</label>
-											<div class="col-sm-5">
-												<input type="text" class="form-control" id="emailUsuarioModal">
-											</div>
-											<label for="senhaUsuarioModal" class="col-sm-1">Senha:</label>
-											<div class="col-sm-5">
-												<input type="password" class="form-control" id="senhaUsuarioModal">
-											</div>
-										</div>
-										<div class="form-group row" style="display: flex; align-items: center;">
-											<label for="" class="col-sm-1">Grupo</label>
-											<div class="col-sm-2">
-												<select id="grupoUsuario" class="form-select">
-													<option selected disabled>Selecione...</option>
-
-												</select>
-											</div>
-										</div>
-									</form>
-								</div>
-								<div class="modal-footer">
-									<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-									<button type="button" class="btnUsuario btn btn-success">Salvar</button>
 								</div>
 							</div>
 						</div>

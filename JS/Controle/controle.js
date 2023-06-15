@@ -1,4 +1,6 @@
-const urlEstoque = "http://localhost:3000/estoque"
+let urlEstoque = "http://localhost:3000/estoque"
+// let urlProduto = "http://localhost:3000/produto"
+// let urlCategoria = "http://localhost:3000/categoria"
 
 $(document).ready(function () {
     toastr.options = {
@@ -65,10 +67,11 @@ InfoProduto = () => {
 
     axios.get(`${urlProduto}/${produto}`)
         .then(response => {
+            debugger
             dados = response.data[0]
             $('#codigoProdutoEstoque').val(dados.id)
             $('#marcaProdutoEstoque').val(dados.marca)
-            $('#categoriaProdutoEstoque').val(dados.categoriaproduto)
+            $('#categoriaProdutoEstoque').val(dados.nomecategoria)
         })
 }
 
@@ -84,7 +87,8 @@ EntradaProduto = (operacao) => {
         .then(response => {
             if (response.data.status) {
                 toastr.success(response.data.message)
-                searchEstoque()
+                $('#tbControle tbody').html('')
+                getEstoque()
                 $('#ModalControleEstoque').modal('hide')
             } else {
                 toastr.warning(response.data.message)
@@ -93,10 +97,12 @@ EntradaProduto = (operacao) => {
 }
 
 getEstoque = () => {
+    let contador = 1
     axios.get(urlEstoque)
         .then(response => {
             response.data.forEach(dado => {
-                $('#tbControle tbody').append(`<tr id=tr${dado.id}><td class="id">${dado.id}</td><td class=nome>${dado.nomeproduto}</td><td class="marca">${dado.marca}</td><td class="categoria">${dado.categoria}</td><td class="operacao">${dado.operacao == 2 ? '<i style="color: green" class="fa fa-arrow-down" aria-hidden="true"></i>' : '<i style="color:red" class="fa fa-arrow-up" aria-hidden="true"></i>'}</td><td class="horario">${moment(dado.dataOperacao).format('DD/MM/YYYY HH:mm')}</td><td class="usuario">${dado.nomeusuario}</td></tr>`)
+                $('#tbControle tbody').append(`<tr id=tr${dado.id}><td>${contador}</td><td class=nome>${dado.nomeproduto}</td><td class="marca">${dado.marca}</td><td class="categoria">${dado.categoria}</td><td class="operacao">${dado.operacao == 2 ? '<i style="color: green" class="fa fa-arrow-down" aria-hidden="true"></i>' : '<i style="color:red" class="fa fa-arrow-up" aria-hidden="true"></i>'}</td><td class="horario">${moment(dado.dataOperacao).format('DD/MM/YYYY HH:mm')}</td><td class="usuario">${dado.nomeusuario}</td></tr>`)
+                contador++
             })
         })
 }
@@ -118,7 +124,7 @@ searchEstoque = () => {
         .then(response => {
             $('#tbControle tbody').html('')
             response.data.forEach(dado => {
-                $('#tbControle tbody').append(`<tr id=tr${dado.id}><td class="id">${dado.id}</td><td class=nome>${dado.nomeproduto}</td><td class="marca">${dado.marca}</td><td class="categoria">${dado.categoria}</td><td class="operacao">${dado.operacao == 2 ? '<i style="color: green" class="fa fa-arrow-up" aria-hidden="true"></i>' : '<i style="color:red" class="fa fa-arrow-down" aria-hidden="true"></i>'}</td><td class="horario">${moment(dado.dataOperacao).format('DD/MM/YYYY HH:mm')}</td><td class="usuario">${dado.nomeusuario}</td></tr>`)
+                $('#tbControle tbody').append(`<tr id=tr${dado.id}><td${dado.id}</td><td class=nome>${dado.nomeproduto}</td><td class="marca">${dado.marca}</td><td class="categoria">${dado.categoria}</td><td class="operacao">${dado.operacao == 2 ? '<i style="color: green" class="fa fa-arrow-up" aria-hidden="true"></i>' : '<i style="color:red" class="fa fa-arrow-down" aria-hidden="true"></i>'}</td><td class="horario">${moment(dado.dataOperacao).format('DD/MM/YYYY HH:mm')}</td><td class="usuario">${dado.nomeusuario}</td></tr>`)
             })
         })
 }

@@ -174,6 +174,12 @@
 										<span style="color: white;">Entrada e Saída</span>
 									</a>
 								</li>
+								<li>
+									<a href="inventario.html">
+										<i class="fa fa-archive" style="color: white;" aria-hidden="true"></i>
+										<span style="color: white;">Inventário</span>
+									</a>
+								</li>
 							</ul>
 						</nav>
 						<hr class="separator" />
@@ -214,10 +220,12 @@
 									<span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-									<li class="dropdown-header"style="font-weight: bold; color: black;">Produto Simples</li>
+									<li class="dropdown-header" style="font-weight: bold; color: black;">Produto Simples
+									</li>
 									<li><a style="cursor: pointer;" onclick="openModalProduto()">Novo</a></li>
 									<li role="separator" class="divider"></li>
-									<li class="dropdown-header" style="font-weight: bold; color: black;">Produto Composto</li>
+									<li class="dropdown-header" style="font-weight: bold; color: black;">Produto
+										Composto</li>
 									<li><a style="cursor: pointer;" onclick="openModalInserirProdutoCpt()">Novo</a></li>
 									<li><a style="cursor: pointer;">Conversão</a></li>
 								</ul>
@@ -229,8 +237,9 @@
 									<thead>
 										<tr>
 											<th scope="col" width="3%">#</th>
-											<th scope="col" width="17%">Nome</th>
-											<th scope="col" width="12%">Marca</th>
+											<th scope="col" width="15%">Nome</th>
+											<th scope="col" width="4%">Composto</th>
+											<th scope="col" width="10%">Marca</th>
 											<th scope="col" width="10%">Categoria</th>
 											<th scope="col" width="8%">Dt.Validade</th>
 											<th scope="col" width="5%">Qtde</th>
@@ -273,7 +282,7 @@
 					</div>
 					<div class="modal fade" id="ModalProduto" tabindex="-1" role="dialog"
 						aria-labelledby="ModalProdutoLabel" aria-hidden="true">
-						<div class="modal-dialog" role="document">
+						<div class="modal-dialog modal-lg" role="document">
 							<div class="modal-content">
 								<div style="background-color: #1D2127;" class="modal-header">
 									<h4 style="color: white; text-align: center;" class="modal-title"
@@ -293,7 +302,7 @@
 												</div>
 												<label for="codigoProduto" class="col-sm-2">Código (SKU)</label>
 												<div class="col-sm-3">
-													<input type="text" class="form-control" id="codigoProduto">
+													<input type="number" class="form-control" id="codigoProduto">
 												</div>
 											</div>
 											<div class="form-group row" style="display: flex; align-items: center;">
@@ -315,7 +324,7 @@
 												</div>
 												<label for="qtdeProduto" class="col-sm-2">Quantidade</label>
 												<div class="col-sm-4">
-													<input type="number" class="form-control" id="qtdeProduto" min="1">
+													<input type="number" class="form-control" id="qtdeProduto" min="0">
 												</div>
 											</div>
 											<div class="form-group row" style="display: flex; align-items: center;">
@@ -325,7 +334,8 @@
 														title="Em KG"></i>
 												</label>
 												<div class="col-sm-3">
-													<input type="number" class="form-control" id="pesoLiquidoProduto" min="1">
+													<input type="number" class="form-control" id="pesoLiquidoProduto"
+														min="1">
 												</div>
 												<label for="pesoBrutoProduto" class="col-sm-3">Peso Bruto
 													<i class="fa fa-info-circle" style="font-size: 14px; color:blue"
@@ -333,7 +343,8 @@
 														title="Em KG"></i>
 												</label>
 												<div class="col-sm-3">
-													<input type="number" class="form-control" id="pesoBrutoProduto" min="1">
+													<input type="number" class="form-control" id="pesoBrutoProduto"
+														min="1">
 												</div>
 											</div>
 										</div>
@@ -347,9 +358,9 @@
 						</div>
 					</div>
 					<div class="modal fade" id="ModalProdutoCpt" tabindex="-1" role="dialog"
-						aria-labelledby="ModalProdutoCompostoLabel" aria-hidden="true"
-						data-keyboard="false" data-backdrop="static">
-						<div class="modal-dialog" role="document">
+						aria-labelledby="ModalProdutoCompostoLabel" aria-hidden="true" data-keyboard="false"
+						data-backdrop="static">
+						<div class="modal-dialog modal-lg" role="document">
 							<div class="modal-content">
 								<div style="background-color: #1D2127;" class="modal-header">
 									<h4 style="color: white; text-align: center;" class="modal-title"
@@ -360,22 +371,25 @@
 									</button>
 								</div>
 								<div class="modal-body">
-									<form id="formCadastroProduto">
+									<form id="formCadastroProduto" method="POST" action="">
 										<div id="idCadastroProduto">
 											<div class="form-group row" style="display: flex; align-items: center;">
 												<label for="nomeProduto" class="col-sm-1">Nome</label>
 												<div class="col-sm-5">
-													<input type="text" class="form-control" id="nomeProdutoCpt" required>
+													<input type="text" class="form-control top-buffer-sm"
+														id="nomeProdutoCpt" required autofocus />
 												</div>
 												<label for="codigoProduto" class="col-sm-2">Código (SKU)</label>
 												<div class="col-sm-3">
-													<input type="text" class="form-control" id="codProdutoCpt" required>
+													<input type="text" class="form-control" id="codProdutoCpt"
+														required />
 												</div>
 											</div>
 											<div class="form-group row" style="display: flex; align-items: center;">
 												<label for="nomeUsuario" class="col-sm-1">Marca</label>
 												<div class="col-sm-5">
-													<input type="text" class="form-control" id="marcaProdutoCpt" required>
+													<input type="text" class="form-control" id="marcaProdutoCpt"
+														required />
 												</div>
 												<label for="categoriaProduto" class="col-sm-1">Tipo</label>
 												<div class="col-sm-2">
@@ -386,118 +400,85 @@
 											</div>
 											<div class="form-group row" style="display: flex; align-items: center;">
 												<label for="dtValidadeProdutoCpt" class="col-sm-2">Dt Validade</label>
-												<div class="col-sm-4">
-													<input type="date" class="form-control" id="dtValidadeProdutoCpt" required>
+												<div class="col-sm-3">
+													<input type="date" class="form-control" id="dtValidadeProdutoCpt"
+														required />
 												</div>
 												<label for="qtdeProduto" class="col-sm-2">Quantidade</label>
 												<div class="col-sm-4">
-													<input type="number" class="form-control" id="qtdeProdutoCpt" min="1" required>
+													<input type="number" class="form-control" id="qtdeProdutoCpt"
+														min="1" required />
 												</div>
 											</div>
 											<div class="form-group row" style="display: flex; align-items: center;">
-												<label for="pesoLiquidoProduto" class="col-sm-3">Peso Líquido
+												<label for="pesoLiquidoProduto" class="col-sm-2">Peso Líquido
 													<i class="fa fa-info-circle" style="font-size: 14px; color:blue"
 														aria-hidden="true" data-toggle="tooltip" data-placement="bottom"
 														title="Em KG"></i>
 												</label>
 												<div class="col-sm-3">
-													<input type="number" class="form-control" id="pesoLiquidoProdutoCpt" required>
+													<input type="number" class="form-control" id="pesoLiquidoProdutoCpt"
+														required min="1"/>
 												</div>
-												<label for="pesoBrutoProduto" class="col-sm-3">Peso Bruto
+												<label for="pesoBrutoProduto" class="col-sm-2">Peso Bruto
 													<i class="fa fa-info-circle" style="font-size: 14px; color:blue"
 														aria-hidden="true" data-toggle="tooltip" data-placement="bottom"
 														title="Em KG"></i>
 												</label>
 												<div class="col-sm-3">
-													<input type="number" class="form-control" id="pesoBrutoProdutoCpt" required>
+													<input type="number" class="form-control" id="pesoBrutoProdutoCpt"
+														required min="1"/>
 												</div>
 											</div>
 										</div>
 										<hr class="hr" />
-										<div class="row divProdutoSimples0" style="display: flex;align-items: center;">
-											<label for="nomeProdutoCpt" class="col-sm-1">Produto</label>
-											<div class="col-sm-3">
-												<select onchange="getInfoProduto()" class="selectProdutoCpt0 form-select" required>
-												</select>
-											</div>
-											<label for="codigoProdutoCpt0" class="col-sm-1">Código</label>
-											<div class="col-sm-3">
-												<input type="text" class="form-control" id="codigoProdutoCpt0" disabled>
-											</div>
-											<label for="qtdeProdutoCpt0" class="col-sm-1">Qtde</label>
+										<div class="row divAdicionalProdutoSimples"
+											style="padding-left: 15px; padding-right: 15px;">
+											<div class="row divProdutoSimples" id="prod0"
+												style="display: flex;align-items: center;">
+												<label for="nomeProdutoCpt" class="col-sm-1">Produto</label>
 												<div class="col-sm-3">
-													<input type="number" class="form-control" id="qtdeProdutoCpt0" required min="1">
+													<select onchange="getInfoProduto()"
+														class="selectProdutoCpt0 form-select" required>
+													</select>
 												</div>
-											<div id="divAddProduto" class="col-sm-2">
-												
+												<label for="codigoProdutoCpt0" class="col-sm-1">Código:</label>
+												<div class="col-sm-4">
+													<span style="font-size: 20px; font-weight: bold;" id="codigoProdutoCpt0"></span>
+												</div>
+												<label for="qtdeProdutoCpt0" class="col-sm-1">Qtde</label>
+												<div class="col-sm-2">
+													<input type="number" class="form-control" id="qtdeProdutoCpt0"
+														required min="1" />
+												</div>
+												<div id="divAddProduto0"
+													style="display: flex; justify-content: space-between;"
+													class="col-sm-3">
+
+												</div>
 											</div>
-										</div>
-										<div class="row divAdicionalProdutoSimples" style="padding-left: 15px; padding-right: 15px;">
-												
-										</div>
-									</form>
-								</div>
-								<div class="modal-footer">
-									<button type="button" onclick="closeModalProdutoCpt()" class="btn btn-danger" data-dismiss="modal">Fechar</button>
-									<button type="button" class="btnSalvarComposto btn btn-success">Salvar</button>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="modal fade" id="ModalEditarProdutoCpt" tabindex="-1" role="dialog"
-						aria-labelledby="ModalEditarProdutoCptLabel" aria-hidden="true"
-						data-keyboard="false" data-backdrop="static">
-						<div class="modal-dialog" role="document">
-							<div class="modal-content">
-								<div style="background-color: #1D2127;" class="modal-header">
-									<h4 style="color: white; text-align: center;" class="modal-title"
-										id="modalEditarProdutoCptLabel"> Editar Produto Composto
-									</h4>
-									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>
-								</div>
-								<div class="modal-body">
-									<form id="formEdicaoProdutoCpt">
-										<div class="form-group row" style="display: flex; align-items: center;">
-											<label for="nomeProdutoEdit" class="col-sm-1">Nome</label>
-											<div class="col-sm-5">
-												<input type="text" class="form-control" id="divNomeProdutoCpt">
-											</div>
-											<label for="codigoProdutoEdit" class="col-sm-2">Código</label>
-											<div class="col-sm-3">
-												<input type="text" class="form-control" id="divCodProdutoCpt">
-											</div>
-										</div>
-										<div class="form-group row" style="display: flex; align-items: center;">
-											<label for="marcaProdutoCpt" class="col-sm-1">Marca</label>
-											<div class="col-sm-5">
-												<input type="text" class="form-control" id="marcaProdutoCptEdit">
-											</div>
-											<label for="categoriaProduto" class="col-sm-2">Tipo</label>
-											<div class="col-sm-3">
-												<select id="categoriaProdutoCptEdit" class="form-select">
-													<option selected disabled>Selecione...</option>
-												</select>
-											</div>
+
 										</div>
 									</form>
 								</div>
 								<div class="modal-footer">
-									<button type="button" onclick="closeModalProdutoCpt()" class="btn btn-danger" data-dismiss="modal">Fechar</button>
-									<button type="button" class="btnSalvarComposto btn btn-success">Salvar</button>
+									<button type="button" onclick="closeModalProdutoCpt()" class="btn btn-danger"
+										data-dismiss="modal">Fechar</button>
+									<button type="button" form="formCadastroProduto"
+										class="btnSalvarComposto btn btn-success">Salvar</button>
 								</div>
 							</div>
 						</div>
 					</div>
+
 					<div class="modal fade" id="ModalShowComposto" tabindex="-1" role="dialog"
-						aria-labelledby="ModalEditarProdutoCptLabel" aria-hidden="true"
-						data-keyboard="false" data-backdrop="static">
+						aria-labelledby="ModalShowCompostoLabel" aria-hidden="true" data-keyboard="false"
+						data-backdrop="static">
 						<div class="modal-dialog" role="document">
 							<div class="modal-content">
 								<div style="background-color: #1D2127;" class="modal-header">
 									<h4 style="color: white; text-align: center;" class="modal-title"
-										id="modalEditarProdutoCptLabel"> Produto Composto
+										id="ModalShowCompostoLabel"> Produto Composto
 									</h4>
 									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 										<span aria-hidden="true">&times;</span>
@@ -505,12 +486,12 @@
 								</div>
 								<div class="modal-body">
 									<form id="formProdutoComposto">
-										
+
 									</form>
 								</div>
 								<div class="modal-footer">
-									<button type="button" onclick="closeModalProdutoCpt()" class="btn btn-danger" data-dismiss="modal">Fechar</button>
-									<button type="button" class="btnSalvarComposto btn btn-success">Salvar</button>
+									<button type="button" onclick="closeModalProdutoCpt()" class="btn btn-danger"
+										data-dismiss="modal">Fechar</button>
 								</div>
 							</div>
 						</div>
@@ -537,7 +518,6 @@
 
 	<!-- JS -->
 	<script src="JS/Produtos/produtos.js"></script>
-	<script src="JS/Produtos/categorias.js"></script>
 	<script type="text/javascript"
 		src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
