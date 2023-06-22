@@ -159,17 +159,17 @@
 										<span style="color: white;">Produtos</span>
 									</a>
 									<ul class="nav nav-children" style="background-color: #525c69;">
-										<a href="categorias.html">
-											<i class="fa fa-th-large" aria-hidden="true"
-												style="color: white; padding-left: 50px;"></i>
-											<span style="color: white; padding-left: 10px;">Categorias</span>
-										</a>
-									</ul>
-									<ul class="nav nav-children" style="background-color: #525c69;">
 										<a href="produtos.html">
 											<i class="fa fa-list" style="color: white; padding-left: 50px;"
 												aria-hidden="true"></i>
 											<span style="color: white; padding-left: 10px;">Lista</span>
+										</a>
+									</ul>
+									<ul class="nav nav-children" style="background-color: #525c69;">
+										<a href="categorias.html">
+											<i class="fa fa-th-large" aria-hidden="true"
+												style="color: white; padding-left: 50px;"></i>
+											<span style="color: white; padding-left: 10px;">Categorias</span>
 										</a>
 									</ul>
 								</li>
@@ -203,7 +203,7 @@
 						<header class="panel-heading" style="background-color:#1D2127">
 							<h2 class="panel-title" style="color: white;">Grupo</h2>
 						</header>
-						<div class="panel-body" style="background-color: #ffffff;">
+						<div class="panel-body" style="background-color: #ffffff; display: flex; flex-direction: column;">
 							<div class="form-group row">
 								<button onclick="showAddGrupo()" style="margin-left: 10px;"
 									class="btnAddGroup btn btn-success"><i style="padding-right: 5px;"
@@ -257,7 +257,7 @@
 									</div>
 								</div>
 								<div class="form-group row">
-									<button style="margin: 15px;" onclick="salvarGrupo()" class="btn btn-success">Salvar
+									<button type="button" style="margin: 15px;" onclick="salvarGrupo()" class="btn btn-success">Salvar
 										Grupo</button>
 								</div>
 							</div>

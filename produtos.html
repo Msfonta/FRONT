@@ -81,7 +81,7 @@
 
 				<div id="userbox" class="userbox">
 					<a href="#" data-toggle="dropdown">
-						<div class="profile-info" data-lock-name="John Doe" data-lock-email="johndoe@okler.com">
+						<div class="profile-info">
 							<span class="accountName name"></span>
 						</div>
 
@@ -154,17 +154,17 @@
 										<span style="color: white;">Produtos</span>
 									</a>
 									<ul class="nav nav-children" style="background-color: #525c69;">
-										<a href="categorias.html">
-											<i class="fa fa-th-large" aria-hidden="true"
-												style="color: white; padding-left: 50px;"></i>
-											<span style="color: white; padding-left: 10px;">Categorias</span>
-										</a>
-									</ul>
-									<ul class="nav nav-children" style="background-color: #525c69;">
 										<a href="produtos.html">
 											<i class="fa fa-list" style="color: white; padding-left: 50px;"
 												aria-hidden="true"></i>
 											<span style="color: white; padding-left: 10px;">Lista</span>
+										</a>
+									</ul>
+									<ul class="nav nav-children" style="background-color: #525c69;">
+										<a href="categorias.html">
+											<i class="fa fa-th-large" aria-hidden="true"
+												style="color: white; padding-left: 50px;"></i>
+											<span style="color: white; padding-left: 10px;">Categorias</span>
 										</a>
 									</ul>
 								</li>
@@ -238,16 +238,13 @@
 										<tr>
 											<th scope="col" width="3%">#</th>
 											<th scope="col" width="15%">Nome</th>
-											<th scope="col" width="4%">Composto</th>
 											<th scope="col" width="10%">Marca</th>
 											<th scope="col" width="10%">Categoria</th>
 											<th scope="col" width="8%">Dt.Validade</th>
-											<th scope="col" width="5%">Qtde</th>
-											<th scope="col" width="7%">P. Liquido</th>
-											<th scope="col" width="7%">P. Bruto</th>
-											<th scope="col" width="5%">Ativo</th>
-											<th scope="col" width="5%">Editar</th>
-											<th scope="col" width="5%">Remover</th>
+											<th class="text-center" scope="col" width="5%">Qtde</th>
+											<th class="text-center" scope="col" width="5%">Ativo</th>
+											<th class="text-center" scope="col" width="5%">Editar</th>
+											<th class="text-center" scope="col" width="5%">Remover</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -371,27 +368,27 @@
 									</button>
 								</div>
 								<div class="modal-body">
-									<form id="formCadastroProduto" method="POST" action="">
-										<div id="idCadastroProduto">
+									<form id="formCadastroProdutoCpt">
+										<div id="idCadastroProdutoCpt">
 											<div class="form-group row" style="display: flex; align-items: center;">
-												<label for="nomeProduto" class="col-sm-1">Nome</label>
+												<label for="nomeProdutoCpt" class="col-sm-1">Nome</label>
 												<div class="col-sm-5">
 													<input type="text" class="form-control top-buffer-sm"
 														id="nomeProdutoCpt" required autofocus />
 												</div>
-												<label for="codigoProduto" class="col-sm-2">Código (SKU)</label>
+												<label for="codProdutoCpt" class="col-sm-2">Código (SKU)</label>
 												<div class="col-sm-3">
 													<input type="text" class="form-control" id="codProdutoCpt"
 														required />
 												</div>
 											</div>
 											<div class="form-group row" style="display: flex; align-items: center;">
-												<label for="nomeUsuario" class="col-sm-1">Marca</label>
+												<label for="marcaProdutoCpt" class="col-sm-1">Marca</label>
 												<div class="col-sm-5">
 													<input type="text" class="form-control" id="marcaProdutoCpt"
 														required />
 												</div>
-												<label for="categoriaProduto" class="col-sm-1">Tipo</label>
+												<label for="categoriaProdutoCpt" class="col-sm-1">Tipo</label>
 												<div class="col-sm-2">
 													<select id="categoriaProdutoCpt" class="form-select" required>
 														<option selected disabled>Selecione...</option>
@@ -404,10 +401,10 @@
 													<input type="date" class="form-control" id="dtValidadeProdutoCpt"
 														required />
 												</div>
-												<label for="qtdeProduto" class="col-sm-2">Quantidade</label>
+												<label for="qtdeProdutoCpt" class="col-sm-2">Quantidade</label>
 												<div class="col-sm-4">
 													<input type="number" class="form-control" id="qtdeProdutoCpt"
-														min="1" required />
+														min="0" required />
 												</div>
 											</div>
 											<div class="form-group row" style="display: flex; align-items: center;">
@@ -418,7 +415,7 @@
 												</label>
 												<div class="col-sm-3">
 													<input type="number" class="form-control" id="pesoLiquidoProdutoCpt"
-														required min="1"/>
+														required min="1" />
 												</div>
 												<label for="pesoBrutoProduto" class="col-sm-2">Peso Bruto
 													<i class="fa fa-info-circle" style="font-size: 14px; color:blue"
@@ -427,54 +424,38 @@
 												</label>
 												<div class="col-sm-3">
 													<input type="number" class="form-control" id="pesoBrutoProdutoCpt"
-														required min="1"/>
+														required min="1" />
 												</div>
 											</div>
 										</div>
 										<hr class="hr" />
-										<div class="row divAdicionalProdutoSimples"
-											style="padding-left: 15px; padding-right: 15px;">
-											<div class="row divProdutoSimples" id="prod0"
-												style="display: flex;align-items: center;">
-												<label for="nomeProdutoCpt" class="col-sm-1">Produto</label>
-												<div class="col-sm-3">
-													<select onchange="getInfoProduto()"
-														class="selectProdutoCpt0 form-select" required>
-													</select>
-												</div>
-												<label for="codigoProdutoCpt0" class="col-sm-1">Código:</label>
-												<div class="col-sm-4">
-													<span style="font-size: 20px; font-weight: bold;" id="codigoProdutoCpt0"></span>
-												</div>
-												<label for="qtdeProdutoCpt0" class="col-sm-1">Qtde</label>
-												<div class="col-sm-2">
-													<input type="number" class="form-control" id="qtdeProdutoCpt0"
-														required min="1" />
-												</div>
-												<div id="divAddProduto0"
-													style="display: flex; justify-content: space-between;"
-													class="col-sm-3">
-
-												</div>
+										<div class="produtosCompostos" style="padding-left: 15px; padding-right: 15px;">
+											<div class="row" id="btnAdicionarProdutoSimples"
+												style="display: flex;align-items: baseline;">
+												<button style="margin-bottom: 15px;" id="btnListaProdutoComposto"
+													type="button" class="btn btn-success"><i class="fa fa-plus"></i>
+													Produto</button>
 											</div>
+											<div id="divAdicionalProdutoSimples">
 
+											</div>
 										</div>
 									</form>
 								</div>
 								<div class="modal-footer">
+									<button type="button" form="formCadastroProduto" disabled
+										class="btnSalvarComposto btn btn-success">Salvar</button>
 									<button type="button" onclick="closeModalProdutoCpt()" class="btn btn-danger"
 										data-dismiss="modal">Fechar</button>
-									<button type="button" form="formCadastroProduto"
-										class="btnSalvarComposto btn btn-success">Salvar</button>
 								</div>
 							</div>
 						</div>
 					</div>
 
-					<div class="modal fade" id="ModalShowComposto" tabindex="-1" role="dialog"
+					<!-- <div class="modal fade" id="ModalShowComposto" tabindex="-1" role="dialog"
 						aria-labelledby="ModalShowCompostoLabel" aria-hidden="true" data-keyboard="false"
 						data-backdrop="static">
-						<div class="modal-dialog" role="document">
+						<div class="modal-dialog modal-lg" role="document">
 							<div class="modal-content">
 								<div style="background-color: #1D2127;" class="modal-header">
 									<h4 style="color: white; text-align: center;" class="modal-title"
@@ -490,12 +471,14 @@
 									</form>
 								</div>
 								<div class="modal-footer">
+									<button type="button"  class="btn btn-success"
+										data-dismiss="modal">Salvar</button>
 									<button type="button" onclick="closeModalProdutoCpt()" class="btn btn-danger"
 										data-dismiss="modal">Fechar</button>
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> -->
 					<!-- end: page -->
 				</section>
 			</div>

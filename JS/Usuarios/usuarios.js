@@ -32,13 +32,12 @@ $(document).ready(function () {
         }
     })
 
-
-
-    var url = window.location.href
     var dadosUsuario = JSON.parse(localStorage.getItem('dadosUsuario'))
 
     if (window.location.href == 'http://localhost/projetoMHR/index.html') {
         $('.accountName').append(dadosUsuario.nome)
+        $('.nomeCompleto').val(dadosUsuario.nome)
+        $('.emailUsuario').val(dadosUsuario.email)
         if (dadosUsuario.id_grupo != 4) {
             $('.listaUsuarios').css('display', 'none')
         }
@@ -48,6 +47,12 @@ $(document).ready(function () {
         if (dadosUsuario.id_grupo != 4) {
             irNaoAutorizado()
         } else {
+            $('.accountName').append(dadosUsuario.nome)
+            $('.nomeCompleto').val(dadosUsuario.nome)
+            $('.emailUsuario').val(dadosUsuario.email)
+            if (dadosUsuario.id_grupo != 4) {
+                $('.listaUsuarios').css('display', 'none')
+            }
             getUser()
         }
     }
@@ -89,29 +94,34 @@ openModalUsuario = () => {
 }
 
 cadastroUsuario = () => {
-    nome = $('#nomeUsuarioModal').val()
-    email = $('#emailUsuarioModal').val()
-    senha = $('#senhaUsuarioModal').val()
-    grupo = $('#grupoUsuario').val()
+    usuario = {
+        nome: $('#nomeUsuarioModal').val(),
+        email: $('#emailUsuarioModal').val(),
+        senha: $('#senhaUsuarioModal').val(),
+        grupo: $('#grupoUsuario').val()
+    }
+
+    usuario.nome = usuario.nome.replace(/'/g, '');
+    usuario.email = usuario.email.replace(/'/g, '');
+    usuario.senha = usuario.senha.replace(/'/g, '');
 
     let regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!regex.test(email)) {
+    if (!regex.test(usuario.email)) {
         toastr.warning("O e-mail é inválido.");
         return false
     }
 
     axios.post(`${url}/cadastro`, {
-        nome,
-        email,
-        senha,
-        grupo
+        usuario
     })
         .then(response => {
-            if (response.status = 200) {
+            if (response.data.status) {
                 $('#tbUsuarios tbody').html('')
                 getUser()
-                toastr.success('Usuário inserido com sucesso!')
+                toastr.success(response.data.message)
                 $('#modalUsuario').modal('hide')
+            } else {
+                toastr.warning(response.data.message)
             }
         })
         .catch(error => {
@@ -121,12 +131,13 @@ cadastroUsuario = () => {
 }
 
 login = () => {
-    email = $('.email-input').val().toLowerCase()
-    senha = $('.senha-input').val()
+    usuario = {
+        email: $('.email-input').val().toLowerCase(),
+        senha: $('.senha-input').val()
+    }
 
     axios.post(`${url}/login`, {
-        email,
-        senha
+        usuario
     })
         .then(response => {
             if (response.data.status) {

@@ -1,6 +1,5 @@
 let urlEstoque = "http://localhost:3000/estoque"
-// let urlProduto = "http://localhost:3000/produto"
-// let urlCategoria = "http://localhost:3000/categoria"
+let urlProduto = "http://localhost:3000/produto"
 
 $(document).ready(function () {
     toastr.options = {
@@ -27,13 +26,18 @@ $(document).ready(function () {
         defaultHour: 'today'
     })
 
-    var url = window.location.href
     var dadosUsuario = JSON.parse(localStorage.getItem('dadosUsuario'))
 
     if (window.location.href == 'http://localhost/projetoMHR/controle.html') {
         if (!dadosUsuario || dadosUsuario.id_grupo != 4) {
             irNaoAutorizado()
         } else {
+            $('.accountName').append(dadosUsuario.nome)
+            $('.nomeCompleto').val(dadosUsuario.nome)
+            $('.emailUsuario').val(dadosUsuario.email)
+            if (dadosUsuario.id_grupo != 4) {
+                $('.listaUsuarios').css('display', 'none')
+            }
             getEstoque()
         }
     }
@@ -67,7 +71,6 @@ InfoProduto = () => {
 
     axios.get(`${urlProduto}/${produto}`)
         .then(response => {
-            debugger
             dados = response.data[0]
             $('#codigoProdutoEstoque').val(dados.id)
             $('#marcaProdutoEstoque').val(dados.marca)

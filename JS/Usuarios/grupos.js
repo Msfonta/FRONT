@@ -17,13 +17,19 @@ $(document).ready(function () {
         'showMethod': 'fadeIn',
         'hideMethod': 'fadeOut',
     }
-    var url = window.location.href
+
     var dadosUsuario = JSON.parse(localStorage.getItem('dadosUsuario'))
 
     if (window.location.href == 'http://localhost/projetoMHR/grupos.html') {
         if (!dadosUsuario || dadosUsuario.id_grupo != 4) {
             irNaoAutorizado()
         } else {
+            $('.accountName').append(dadosUsuario.nome)
+            $('.nomeCompleto').val(dadosUsuario.nome)
+            $('.emailUsuario').val(dadosUsuario.email)
+            if (dadosUsuario.id_grupo != 4) {
+                $('.listaUsuarios').css('display', 'none')
+            }
             getListaGrupos()
         }
     }
@@ -66,6 +72,8 @@ salvarGrupo = () => {
                 $('.btnAddGroup').attr('disabled', false)
                 $('#idCadastroGrupo').css('display', 'none')
 
+            } else {
+                toastr.warning(response.data.message)
             }
         })
 }
