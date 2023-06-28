@@ -1,4 +1,5 @@
 const urlCategoria = "http://localhost:3000/categoria"
+let inventario = false;
 
 $(document).ready(function () {
     toastr.options = {
@@ -9,7 +10,7 @@ $(document).ready(function () {
         'positionClass': 'toast-top-right',
         'preventDuplicates': false,
         'showDuration': '1000',
-        'hideDuration': '1000', 
+        'hideDuration': '1000',
         'timeOut': '5000',
         'extendedTimeOut': '1000',
         'showEasing': 'swing',
@@ -23,11 +24,21 @@ $(document).ready(function () {
         if (!dadosUsuario || dadosUsuario.id_grupo != 4) {
             irNaoAutorizado()
         } else {
+            (async () => {
+                const inventario = await getStatusInventario()
+                if (inventario) {
+                    localStorage.setItem('inventario', inventario)
+                }
+            })();
             $('.accountName').append(dadosUsuario.nome)
             $('.nomeCompleto').val(dadosUsuario.nome)
             $('.emailUsuario').val(dadosUsuario.email)
             if (dadosUsuario.id_grupo != 4) {
                 $('.listaUsuarios').css('display', 'none')
+            }
+            inventario = JSON.parse(localStorage.getItem('inventario'))
+            if(inventario){
+                $('.divInventario h4').css('display', 'block')
             }
             getCategorias()
         }
@@ -43,8 +54,8 @@ getCategorias = () => {
     let contador = 1
     axios.get(`${urlCategoria}/`)
         .then(response => {
-            response.data.forEach(dado => {
-                $('#tbCategorias tbody').append(`<tr id=tr${dado.id}><td class="id">${contador}</td><td class="nome">${dado.nome}</td><td align="center"><a id="editarGrupo" onclick="showEditarCategoria(${dado.id}, ${dado.tipo})" style="cursor:pointer;" class="on-default edit-row"><i style="color:orange" class="fa fa-pencil"></i></a></td><td align="center"><a id="removerCategoria" onclick="showRemoverCategoria(${dado.id})" style="cursor:pointer;" class="on-default edit-row"><i style="color:red" class="fa fa-trash-o"></i></a></td></tr>`)
+            response.data.data.forEach(dado => {
+                $('#tbCategorias tbody').append(`<tr id=tr${dado.id}><td class="id">${contador}</td><td class="nome">${dado.nome}</td><td align="center"><a id="editarGrupo" onclick="showEditarCategoria(${dado.id}, ${dado.tipo})" style="cursor:pointer;" class="on-default edit-row"><i style="color:orange" class="fa fa-pencil"></i></a></td><td align="center"><a id="removerCategoria" onclick="showRemoverCategoria(${dado.id})" style=${inventario ? "pointer-events:none;" : "cursor:pointer;"} class="on-default edit-row"><i style="color:red" class="fa fa-trash-o"></i></a></td></tr>`)
                 contador++
             })
         })
@@ -52,7 +63,11 @@ getCategorias = () => {
 
 showRemoverCategoria = (id) => {
     $('#modalExclusaoCategoria').modal('show')
-    $('.btnExclusaoCategoria').attr('onclick', `removerCategoria(${id})`)
+    if (inventario) {
+        $('.btnExclusaoCategoria').css('pointer-events', 'none')
+    } else {
+        $('.btnExclusaoCategoria').attr('onclick', `removerCategoria(${id})`)
+    }
 }
 
 showAddCategoria = () => {
@@ -117,13 +132,13 @@ editarCategoria = (id) => {
 
 removerCategoria = (id) => {
     axios.put(`${urlCategoria}/delete/${id}`)
-    .then(response => {
-        if(response.data.status) {
-            toastr.success(response.data.message)
-            $(`#tbCategorias tbody #tr${id}`).remove()
-            $('#modalExclusaoCategoria').modal('hide')
-        } else {
-            toastr.warning(response.data.message)
-        }
-    }).catch(error => toastr.error(error))
+        .then(response => {
+            if (response.data.status) {
+                toastr.success(response.data.message)
+                $(`#tbCategorias tbody #tr${id}`).remove()
+                $('#modalExclusaoCategoria').modal('hide')
+            } else {
+                toastr.warning(response.data.message)
+            }
+        }).catch(error => toastr.error(error))
 }

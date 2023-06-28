@@ -1,5 +1,6 @@
 let urlEstoque = "http://localhost:3000/estoque"
 let urlProduto = "http://localhost:3000/produto"
+let inventario = false
 
 $(document).ready(function () {
     toastr.options = {
@@ -32,12 +33,19 @@ $(document).ready(function () {
         if (!dadosUsuario || dadosUsuario.id_grupo != 4) {
             irNaoAutorizado()
         } else {
+            (async () => {
+                const inventario = await getStatusInventario()
+                if (inventario) {
+                    localStorage.setItem('inventario', inventario)
+                }
+            })();
             $('.accountName').append(dadosUsuario.nome)
             $('.nomeCompleto').val(dadosUsuario.nome)
             $('.emailUsuario').val(dadosUsuario.email)
             if (dadosUsuario.id_grupo != 4) {
                 $('.listaUsuarios').css('display', 'none')
             }
+            inventario = JSON.parse(localStorage.getItem('inventario'))
             getEstoque()
         }
     }
@@ -49,6 +57,10 @@ irNaoAutorizado = () => {
 
 
 EntradaSaidaProdutos = () => {
+    if(inventario){
+        $('.btnSaidaEstoque').css('pointer-events', 'none')
+        $('.btnEntradaEstoque').css('pointer-events', 'none')
+    }
     $('#idCadastroProduto').each(function () {
         this.reset()
     })
@@ -85,7 +97,8 @@ EntradaProduto = (operacao) => {
     axios.put(`${urlEstoque}/${id}`, {
         id,
         operacao,
-        usuario
+        usuario,
+        inventario
     })
         .then(response => {
             if (response.data.status) {
@@ -95,6 +108,7 @@ EntradaProduto = (operacao) => {
                 $('#ModalControleEstoque').modal('hide')
             } else {
                 toastr.warning(response.data.message)
+                $('#ModalControleEstoque').modal('hide')
             }
         })
 }

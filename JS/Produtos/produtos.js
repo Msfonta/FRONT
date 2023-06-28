@@ -3,6 +3,7 @@ let urlComposto = "http://localhost:3000/composto"
 let urlCategoria = "http://localhost:3000/categoria"
 
 let quantidadeProdutos = false;
+let inventario = false
 
 $(document).ready(function () {
     toastr.options = {
@@ -28,12 +29,19 @@ $(document).ready(function () {
         if (!dadosUsuario || dadosUsuario.id_grupo != 4) {
             irNaoAutorizado()
         } else {
+            (async () => {
+                const inventario = await getStatusInventario()
+                if (inventario) {
+                    localStorage.setItem('inventario', inventario)
+                }
+            })();
             $('.accountName').append(dadosUsuario.nome)
             $('.nomeCompleto').val(dadosUsuario.nome)
             $('.emailUsuario').val(dadosUsuario.email)
             if (dadosUsuario.id_grupo != 4) {
                 $('.listaUsuarios').css('display', 'none')
             }
+            inventario = JSON.parse(localStorage.getItem('inventario'))
             getProdutos()
         }
     }
@@ -122,7 +130,7 @@ getProdutos = () => {
     axios.get(`${urlProduto}`)
         .then(response => {
             response.data.forEach(dado => {
-                $('#tbProdutos tbody').append(`<tr id=tr${dado.id}><td class="id">${contador}</td><td class="nome">${dado.nome}</td><td class="marca">${dado.marca}</td><td class="tipo">${dado.categoriaproduto}</td><td class="dtValidade" >${dado.dtValidade ? moment(dado.dtValidade).format('DD/MM/YYYY') : ''}</td><td align="center" class="qtde">${dado.quantidade}</td><td align="center" class=exc>${dado.excluido == 0 ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td align="center" >${dado.pcomposto ? `<a onclick="openModalEditarProdutoCpt(${dado.id}, ${dado.pcomposto})" style="cursor:pointer;" class="on-default edit-row"><i id="cbEditarProduto(${dado.id})" style="color:orange" class="fa fa-pencil"></i></a> ` : `<a onclick="openModalEditarProduto(${dado.id})" style="cursor:pointer;" class="on-default edit-row"><i id="cbEditarProduto(${dado.id})" style="color:orange" class="fa fa-pencil"></i></a>`}</td><td align="center" ><a onclick="openModalExclusaoProduto(${dado.id})" style="cursor:pointer;" class="on-default edit-row"><i id="cbRemoverProduto(${dado.id})" style="color:red" class="fa fa-trash-o"></i></a></td></tr>`)
+                $('#tbProdutos tbody').append(`<tr id=tr${dado.id}><td class="id">${contador}</td><td class="nome">${dado.nome}</td><td class="marca">${dado.marca}</td><td class="tipo">${dado.categoriaproduto}</td><td class="dtValidade" >${dado.dtValidade ? moment(dado.dtValidade).format('DD/MM/YYYY') : ''}</td><td align="center" class="qtde">${dado.quantidade}</td><td align="center" class=exc>${dado.excluido == 0 ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td align="center" >${dado.pcomposto ? `<a onclick="openModalEditarProdutoCpt(${dado.id}, ${dado.pcomposto})" style=${inventario ? "pointer-events:none;" : "cursor:pointer;"} class="on-default edit-row"><i id="cbEditarProduto(${dado.id})" style="color:orange" class="fa fa-pencil"></i></a> ` : `<a onclick="openModalEditarProduto(${dado.id})" style=${inventario ? "pointer-events:none;" : "cursor:pointer;"} class="on-default edit-row"><i id="cbEditarProduto(${dado.id})" style="color:orange" class="fa fa-pencil"></i></a>`}</td><td align="center" ><a onclick="openModalExclusaoProduto(${dado.id})" style=${inventario ? "pointer-events:none;" : "cursor:pointer;"} class="on-default edit-row"><i id="cbRemoverProduto(${dado.id})" style="color:red" class="fa fa-trash-o"></i></a></td></tr>`)
                 contador++
             })
 
@@ -137,7 +145,7 @@ openModalExclusaoProduto = (id) => {
 
 openModalEditarProduto = (id) => {
     $('#modalProdutoLabel').text('').append('Editar Produto Simples')
-    
+
 
     axios.get(`${urlProduto}/${id}`)
         .then(response => {
@@ -160,21 +168,25 @@ openModalEditarProduto = (id) => {
 }
 
 removerProduto = (id) => {
-    axios.put(`${urlProduto}/delete/${id}`)
-        .then(response => {
-            if (response.data.status) {
+    $.ajax({
+        method: 'PUT',
+        url: `${urlProduto}/delete/${id}`,
+        data: {inventario},
+        success: function (response) {
+            if (response.status) {
                 $(`#tbProdutos tbody #tr${id}`).remove()
-                toastr.success(response.data.message)
+                toastr.success(response.message)
                 $('#modalExclusaoProduto').modal('hide')
             } else {
-                toastr.warning(response.data.message)
+                toastr.warning(response.message)
                 $('#modalExclusaoProduto').modal('hide')
             }
-        })
+        }
+    })
 }
 
 editarProduto = (id) => {
-    
+
     produto = {
         nome: $('#nomeProduto').val(),
         dtValidade: $('#dtValidadeProduto').val(),
@@ -186,9 +198,10 @@ editarProduto = (id) => {
 
     produto.nome = produto.nome.replace(/'/g, '');
     produto.marca = produto.marca.replace(/'/g, '');
-    
+
     axios.put(`${urlProduto}/${id}`, {
-        produto
+        produto,
+        inventario
     })
         .then(response => {
             if (response.data.status) {
@@ -199,6 +212,9 @@ editarProduto = (id) => {
                 $(`#tbProdutos tbody #tr${id} .bruto`).text(response.data.produto.bruto)
                 $(`#tbProdutos tbody #tr${id} .marca`).text(response.data.produto.marca)
                 toastr.success('Produto atualizado com sucesso!')
+                $('#ModalProduto').modal('hide')
+            } else {
+                toastr.warning(response.data.message)
                 $('#ModalProduto').modal('hide')
             }
         })
@@ -275,7 +291,7 @@ listaProdutoComposto = (modal) => {
                 $(`.selectProdutoCpt${contador}`).append(`<option value="${produto.id}">${produto.nome}</option>`);
             });
             contador++;
-            if(modal){
+            if (modal) {
                 $('.btnSalvarComposto').attr('onclick', `salvarComposto(${contador})`)
             }
 
@@ -308,7 +324,7 @@ salvarComposto = () => {
     for (i = 0; i < quantidade; i++) {
         $('.divProdutoSimples').eq(i).addClass(`classProduto${i}`)
         valores[i] = { cod: $(`.classProduto${i} select option:selected`).val(), qtde: parseInt($(`.classProduto${i} input`).val()) }
-        if(!valores[i].cod || !valores[i].qtde){
+        if (!valores[i].cod || !valores[i].qtde) {
             toastr.warning('Não foi possivel cadastrar este produto pois tem valores vazios!')
             return
         }
@@ -423,7 +439,8 @@ editarProdutoCpt = (id, idComposto) => {
         data: {
             produto,
             valores,
-            idComposto
+            idComposto,
+            inventario
         },
         success: function (response) {
             if (response.status) {
@@ -438,6 +455,7 @@ editarProdutoCpt = (id, idComposto) => {
                 $('#ModalProdutoCpt').modal('hide')
             } else {
                 toastr.warning(response.message)
+                $('#ModalProdutoCpt').modal('hide')
             }
         }
     })

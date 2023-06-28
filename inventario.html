@@ -64,18 +64,16 @@
 					<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
 				</div>
 			</div>
+			
 
 			<!-- start: search & user box -->
 			<div class="header-right">
 
-				<!-- <form action="pages-search-results.html" class="search nav-form">
-					<div class="input-group input-search">
-						<input type="text" class="form-control" name="q" id="q" placeholder="Search...">
-						<span class="input-group-btn">
-							<button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
-						</span>
+				<div class="search nav-form divInventario">
+					<div class="input-group input-search fc-header-center">
+						<h4 style="font-weight: bold; color: red; display: none;" align="left">INVENTÁRIO EM PROGRESSO!</h4>
 					</div>
-				</form> -->
+				</div>
 
 				<span class="separator"></span>
 
@@ -202,21 +200,22 @@
 						</header> -->
 						<div class="panel-body"
 							style="background-color: #ffffff; overflow-y: auto; overflow-x: hidden; max-height: 730px;">
-							<div class="row" style="display: flex; align-items: center;">
-								<button class="btn btn-info" style="margin: 0 15px 10px 15px;" data-toggle="tooltip"
-									data-placement="right" onclick=""
-									title="">Análise Contagem</button>
+							<div class="row btnListaInventario" style="display: flex; align-items: center;">
+								<button class="btn btn-success" style="margin: 0 15px 10px 15px;" data-toggle="tooltip"
+									data-placement="right" id="btnInventario" onclick="iniciarInventario()"
+									title="">Iniciar Inventário</button>
 							</div>
 						</div>
 						<table class="table table-bordered table-striped mb-none" id="tbInventario"
 							style="border: 1px solid black;">
 							<thead>
 								<tr>
-									<th scope="col" width="5%">#</th>
-									<th scope="col" width="50%">Produto</th>
-									<th scope="col" width="20%">Estoque Físico</th>
-									<th scope="col" width="20%">Estoque Sistema</th>
-									<th scope="col" width="5%">Diferença</th>
+									<th scope="col" width="3%">#</th>
+									<th scope="col" width="20%">Código</th>
+									<th scope="col" width="52%">Produto</th>
+									<th scope="col" width="10%">Estoque Físico</th>
+									<th scope="col" width="10%">Estoque Sistema</th>
+									<th class="text-center" scope="col" width="5%">Salvar</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -269,8 +268,7 @@
 	<script src="assets/javascripts/theme.custom.js"></script>
 
 	<!-- JS -->
-	<script src="./JS/Usuarios/usuarios.js"></script>
-	<script src="./JS/Usuarios/grupos.js"></script>
+	<script src="JS/Controle/inventario.js"></script>
 	<script type="text/javascript"
 		src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
