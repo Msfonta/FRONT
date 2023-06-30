@@ -1,9 +1,9 @@
 const urlProduto = "http://localhost:3000/produto"
-let urlComposto = "http://localhost:3000/composto"
-let urlCategoria = "http://localhost:3000/categoria"
+urlComposto = "http://localhost:3000/composto"
 
 let quantidadeProdutos = false;
-let inventario = false
+inventario = false
+dadosUser = false
 
 $(document).ready(function () {
     toastr.options = {
@@ -23,26 +23,32 @@ $(document).ready(function () {
         'hideMethod': 'fadeOut',
     }
 
-    var dadosUsuario = JSON.parse(localStorage.getItem('dadosUsuario'))
+    dadosUser = JSON.parse(localStorage.getItem('dadosUsuario'))
 
     if (window.location.href == 'http://localhost/projetoMHR/produtos.html') {
-        if (!dadosUsuario || dadosUsuario.id_grupo != 4) {
-            irNaoAutorizado()
-        } else {
-            (async () => {
-                const inventario = await getStatusInventario()
-                if (inventario) {
-                    localStorage.setItem('inventario', inventario)
+        if (dadosUser) {
+            buscarPermissao(dadosUser.email, dadosUser.senha).then(
+                function (response) {
+                    if (response.status) {
+                        if (response.message[0].perm_produtos) {
+                            inventario = JSON.parse(localStorage.getItem('inventario'))
+                            if (inventario) {
+                                $('.divInventario h4').css('display', 'block')
+                            }
+                            $('.accountName').append(dadosUser.nome)
+                            $('.nomeCompleto').val(dadosUser.nome)
+                            $('.emailUsuario').val(dadosUser.email)
+                            getProdutos()
+                        } else {
+                            window.location.href = "http://localhost/projetoMHR/erro401.html"
+                        }
+                    } else {
+                        toastr.warning(response.message)
+                    }
                 }
-            })();
-            $('.accountName').append(dadosUsuario.nome)
-            $('.nomeCompleto').val(dadosUsuario.nome)
-            $('.emailUsuario').val(dadosUsuario.email)
-            if (dadosUsuario.id_grupo != 4) {
-                $('.listaUsuarios').css('display', 'none')
-            }
-            inventario = JSON.parse(localStorage.getItem('inventario'))
-            getProdutos()
+            )
+        } else {
+            window.location.href = "http://localhost/projetoMHR/signIn.html"
         }
     }
 })
@@ -52,12 +58,12 @@ irNaoAutorizado = () => {
 }
 
 getListaCategorias = (tipo) => {
-    axios.get(urlCategoria, {
-        params: {
+    $.ajax({
+        url: `${urlCategoria}`,
+        method: 'GET',
+        data: {
             tipo
-        }
-    })
-        .then(response => {
+        }, success: function (response) {
             $('#categoriaProduto').prepend('<option value="0" disabled>Selecione...</option>')
             response.data.forEach(dado => {
                 if (tipo == 1) {
@@ -66,7 +72,9 @@ getListaCategorias = (tipo) => {
                     $('#categoriaProdutoCpt').append(`<option value=${dado.id}>${dado.nome}</option>`)
                 }
             })
-        })
+        }
+    })
+
 }
 
 openModalProduto = () => {
@@ -83,19 +91,25 @@ openModalProduto = () => {
 
 getInfoProduto = (contador = 0) => {
     id = $(`.selectProdutoCpt${contador} option:selected`).val()
-    axios.get(`${urlProduto}/${id}`)
-        .then(response => {
-            dados = response.data[0]
-            $(`.selectProdutoCpt${contador}`).attr('disabled', true)
-            $(`#codigoProdutoCpt${contador}`).text(dados.id)
-            for (i = 1; i <= dados.quantidade; i++) {
-                $(`.selectQtdeCpt${contador}`).append(`<option value="${i}">${i}</option>`)
+    $.ajax({
+        url: `${urlProduto}/${id}`,
+        method: 'GET',
+        success: function (response) {
+            if (response.status) {
+                dados = response.message[0]
+                $(`.selectProdutoCpt${contador}`).attr('disabled', true)
+                $(`#codigoProdutoCpt${contador}`).text(dados.id)
+                for (i = 1; i <= dados.quantidade; i++) {
+                    $(`.selectQtdeCpt${contador}`).append(`<option value="${i}">${i}</option>`)
+                }
+                $(`#qtdeProdutoCpt${contador}`).val(1)
+                contador++;
+            } else {
+                toastr.warning(response.message)
             }
-            $(`#qtdeProdutoCpt${contador}`).val(1)
-            // $(`#divAddProduto${contador}`)
-            //     .append(`<button id="removeComposto${contador}" onclick="removeProdutoListaComposto(${contador})" type="button" class="btn btn-danger"><i class="fa fa-times"></i></button>`)
-            contador++;
-        })
+        }
+    })
+
 }
 cadastrarProduto = () => {
     produto = {
@@ -147,23 +161,28 @@ openModalEditarProduto = (id) => {
     $('#modalProdutoLabel').text('').append('Editar Produto Simples')
 
 
-    axios.get(`${urlProduto}/${id}`)
-        .then(response => {
-            dados = response.data[0]
-            $('#nomeProduto').val(dados.nome)
-            $('#dtValidadeProduto').val(moment(dados.dtValidade).format('YYYY-MM-DD'))
-            $('#qtdeProduto').val(dados.quantidade)
-            $('#pesoLiquidoProduto').val(dados.pesoLiquido)
-            $('#pesoBrutoProduto').val(dados.pesoBruto)
-            $('#marcaProduto').val(dados.marca)
-            $('#categoriaProduto option').text(dados.nomecategoria).val(dados.categoria)
-            $('#codigoProduto').val(dados.id).prop('disabled', 'disabled')
-        })
-
+    $.ajax({
+        url: `${urlProduto}/${id}`,
+        method: 'GET',
+        success: function(response){
+            if(response.status){
+                dados = response.message[0]
+                $('#nomeProduto').val(dados.nome)
+                $('#dtValidadeProduto').val(moment(dados.dtValidade).format('YYYY-MM-DD'))
+                $('#qtdeProduto').val(dados.quantidade).attr('disabled', 'disabled')
+                $('#pesoLiquidoProduto').val(dados.pesoLiquido)
+                $('#pesoBrutoProduto').val(dados.pesoBruto)
+                $('#marcaProduto').val(dados.marca)
+                $('#categoriaProduto option').text(dados.nomecategoria).val(dados.categoria)
+                $('#codigoProduto').val(dados.id).prop('disabled', 'disabled')
+            } else {
+                toastr.warning(response.message)
+            }
+        }
+    })
 
     $(`.cbEditarProduto${id}`).prop('checked', false)
     $('.btnSalvarProduto').attr('onclick', 'editarProduto(' + id + ')')
-
     $('#ModalProduto').modal('show')
 }
 
@@ -171,7 +190,7 @@ removerProduto = (id) => {
     $.ajax({
         method: 'PUT',
         url: `${urlProduto}/delete/${id}`,
-        data: {inventario},
+        data: { inventario },
         success: function (response) {
             if (response.status) {
                 $(`#tbProdutos tbody #tr${id}`).remove()
@@ -365,22 +384,29 @@ openModalEditarProdutoCpt = (id, idComposto) => {
     $('#modalProdutoCptLabel').text('').append('Editar Produto Composto')
     $('.btnSalvarComposto').attr('disabled', false)
 
-    axios.get(`${urlProduto}/${id}`)
-        .then(response => {
-            dados = response.data[0]
-            $('#nomeProdutoCpt').val(dados.nome)
-            $('#dtValidadeProdutoCpt').val(moment(dados.dtValidade).format('YYYY-MM-DD'))
-            $('#qtdeProdutoCpt').val(dados.quantidade)
-            $('#pesoLiquidoProdutoCpt').val(dados.pesoLiquido)
-            $('#pesoBrutoProdutoCpt').val(dados.pesoBruto)
-            $('#marcaProdutoCpt').val(dados.marca)
-            $('#categoriaProdutoCpt option').text(dados.nomecategoria).val(dados.categoria)
-            $('#codProdutoCpt').val(dados.id).prop('disabled', 'disabled')
-            if (dados.quantidade != 0) {
-                $('.produtosCompostos').css('pointer-events', 'none')
-                $('#btnAdicionarProdutoSimples').append(`<span style="color: red; font-weight:bold;"> Não é possível editar os produtos simples pois a quantidade não está zerada! </span>`)
+    $.ajax({
+        url: `${urlProduto}/${id}`,
+        method: 'GET',
+        success: function(response){
+            if(response.status){
+                dados = response.message[0]
+                $('#nomeProdutoCpt').val(dados.nome)
+                $('#dtValidadeProdutoCpt').val(moment(dados.dtValidade).format('YYYY-MM-DD'))
+                $('#qtdeProdutoCpt').val(dados.quantidade).attr('disabled', 'disabled')
+                $('#pesoLiquidoProdutoCpt').val(dados.pesoLiquido)
+                $('#pesoBrutoProdutoCpt').val(dados.pesoBruto)
+                $('#marcaProdutoCpt').val(dados.marca)
+                $('#categoriaProdutoCpt option').text(dados.nomecategoria).val(dados.categoria)
+                $('#codProdutoCpt').val(dados.id).prop('disabled', 'disabled')
+                if (dados.quantidade != 0) {
+                    $('.produtosCompostos').css('pointer-events', 'none')
+                    $('#btnAdicionarProdutoSimples').append(`<span style="color: red; font-weight:bold;"> Não é possível editar os produtos simples pois a quantidade não está zerada! </span>`)
+                }
+            } else {
+                toastr.warning(response.message)
             }
-        })
+        }
+    })
 
     axios.get(`${urlProduto}/composto/${idComposto}`)
         .then(response => {
@@ -488,7 +514,6 @@ removerComposto = (idComposto, idProduto) => {
                 $(`#prod${idProduto}`).remove()
                 toastr.success(response.data.message)
             } else {
-                console.log(response.data.debug)
                 toastr.warning(response.data.message)
             }
         })

@@ -57,30 +57,34 @@
 						<form>
 							<div class="form-group mb-lg">
 								<label>Nome</label>
-								<input required name="name" type="text" class="nome-input form-control input-lg" />
+								<input required name="name" type="text" id="nomeSignIn" class="form-control input-lg" />
 							</div>
 
 							<div class="form-group mb-lg">
 								<label>E-mail</label>
-								<input required name="email" type="email" class="email-input form-control input-lg" />
+								<input required name="email" type="email" id="emailSignIn" class="form-control input-lg" />
 							</div>
 
 							<div class="form-group mb-none">
 								<div class="row">
 									<div class="col-sm-6 mb-lg">
 										<label>Senha</label>
-										<input required name="senha" type="password" class="senha-input form-control input-lg" />
+										<input required name="senha" type="password" id="senha1SignIn" class="form-control input-lg" />
 									</div>
 									<div class="col-sm-6 mb-lg">
-										<label>Confirma Senha</label>
-										<input required name="senha_confirm" type="password" class="senha2-input form-control input-lg" />
+										<label for="" class="col-sm-2">Grupo</label>
+											<div class="col-sm-4">
+												<select id="grupoUsuario" class="form-select">
+													<option selected disabled>Selecione...</option>
+												</select>
+											</div>
 									</div>
 								</div>
 							</div>
 
 							<div class="row">
 								<div class="col-lg-12 text-center">
-									<button type="button" onclick="cadastroUsuario()" class="btn btn-primary hidden-xs">Sign Up</button>
+									<button type="button" onclick="signUp()" class="btn btn-primary hidden-xs">Cadastrar</button>
 									<!-- <button type="submit" class="btn btn-primary btn-block btn-lg visible-xs mt-lg">Sign Up</button> -->
 								</div>
 							</div>
@@ -115,7 +119,9 @@
 		<script src="assets/javascripts/theme.init.js"></script>
 
 		<!-- JS -->
-		<script src="JS/index.js"></script>
+		<script src="JS/Usuarios/usuarios.js"></script>
+		<script type="text/javascript"
+		src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
 	</body>
 </html>

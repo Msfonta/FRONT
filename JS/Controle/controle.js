@@ -1,6 +1,7 @@
 let urlEstoque = "http://localhost:3000/estoque"
-let urlProduto = "http://localhost:3000/produto"
-let inventario = false
+// let urlProduto = "http://localhost:3000/produto"
+inventario = false
+dadosUser = false;
 
 $(document).ready(function () {
     toastr.options = {
@@ -27,26 +28,33 @@ $(document).ready(function () {
         defaultHour: 'today'
     })
 
-    var dadosUsuario = JSON.parse(localStorage.getItem('dadosUsuario'))
-
+    dadosUser = JSON.parse(localStorage.getItem('dadosUsuario'))
     if (window.location.href == 'http://localhost/projetoMHR/controle.html') {
-        if (!dadosUsuario || dadosUsuario.id_grupo != 4) {
-            irNaoAutorizado()
-        } else {
-            (async () => {
-                const inventario = await getStatusInventario()
-                if (inventario) {
-                    localStorage.setItem('inventario', inventario)
+        if (dadosUser) {
+
+            buscarPermissao(dadosUser.email, dadosUser.senha).then(
+                function (response) {
+                    if (response.status) {
+                        if (response.message[0].perm_controle) {
+                            inventario = JSON.parse(localStorage.getItem('inventario'))
+                            if (inventario) {
+                                $('.divInventario h4').css('display', 'block')
+                            }
+                            getEstoque()
+                            $('.accountName').append(dadosUser.nome)
+                            $('.nomeCompleto').val(dadosUser.nome)
+                            $('.emailUsuario').val(dadosUser.email)
+
+                        } else {
+                            window.location.href = "http://localhost/projetoMHR/erro401.html"
+                        }
+                    } else {
+                        toastr.warning(response.message)
+                    }
                 }
-            })();
-            $('.accountName').append(dadosUsuario.nome)
-            $('.nomeCompleto').val(dadosUsuario.nome)
-            $('.emailUsuario').val(dadosUsuario.email)
-            if (dadosUsuario.id_grupo != 4) {
-                $('.listaUsuarios').css('display', 'none')
-            }
-            inventario = JSON.parse(localStorage.getItem('inventario'))
-            getEstoque()
+            )
+        } else {
+            window.location.href = "http://localhost/projetoMHR/signIn.html"
         }
     }
 })
@@ -57,7 +65,7 @@ irNaoAutorizado = () => {
 
 
 EntradaSaidaProdutos = () => {
-    if(inventario){
+    if (inventario) {
         $('.btnSaidaEstoque').css('pointer-events', 'none')
         $('.btnEntradaEstoque').css('pointer-events', 'none')
     }
@@ -81,13 +89,18 @@ InfoProduto = () => {
     $('#categoriaProdutoEstoque').val('')
     produto = $('.selectProdutos option:selected').val()
 
-    axios.get(`${urlProduto}/${produto}`)
-        .then(response => {
-            dados = response.data[0]
-            $('#codigoProdutoEstoque').val(dados.id)
-            $('#marcaProdutoEstoque').val(dados.marca)
-            $('#categoriaProdutoEstoque').val(dados.nomecategoria)
-        })
+    $.ajax({
+        url: `${urlProduto}/${produto}`,
+        method: 'GET',
+        success: function (response) {
+            if (response.status) {
+                dados = response.message[0]
+                $('#codigoProdutoEstoque').val(dados.id)
+                $('#marcaProdutoEstoque').val(dados.marca)
+                $('#categoriaProdutoEstoque').val(dados.nomecategoria)
+            }
+        }
+    })
 }
 
 EntradaProduto = (operacao) => {
@@ -115,16 +128,20 @@ EntradaProduto = (operacao) => {
 
 getEstoque = () => {
     let contador = 1
-    axios.get(urlEstoque)
-        .then(response => {
-            response.data.forEach(dado => {
+    $.ajax({
+        url: urlEstoque,
+        method: 'GET',
+        success: function (response) {
+            response.message.forEach(dado => {
                 $('#tbControle tbody').append(`<tr id=tr${dado.id}><td>${contador}</td><td class=nome>${dado.nomeproduto}</td><td class="marca">${dado.marca}</td><td class="categoria">${dado.categoria}</td><td class="operacao">${dado.operacao == 2 ? '<i style="color: green" class="fa fa-arrow-down" aria-hidden="true"></i>' : '<i style="color:red" class="fa fa-arrow-up" aria-hidden="true"></i>'}</td><td class="horario">${moment(dado.dataOperacao).format('DD/MM/YYYY HH:mm')}</td><td class="usuario">${dado.nomeusuario}</td></tr>`)
                 contador++
             })
-        })
+        }
+    })
 }
 
 searchEstoque = () => {
+    let contador = 1
     dataInicial = $('#dtValidadeEstoque').val().split(' to ')[0]
     dataFinal = $('#dtValidadeEstoque').val().split(' to ')[1]
     busca = $('#inputProduto').val()
@@ -141,7 +158,8 @@ searchEstoque = () => {
         .then(response => {
             $('#tbControle tbody').html('')
             response.data.forEach(dado => {
-                $('#tbControle tbody').append(`<tr id=tr${dado.id}><td${dado.id}</td><td class=nome>${dado.nomeproduto}</td><td class="marca">${dado.marca}</td><td class="categoria">${dado.categoria}</td><td class="operacao">${dado.operacao == 2 ? '<i style="color: green" class="fa fa-arrow-up" aria-hidden="true"></i>' : '<i style="color:red" class="fa fa-arrow-down" aria-hidden="true"></i>'}</td><td class="horario">${moment(dado.dataOperacao).format('DD/MM/YYYY HH:mm')}</td><td class="usuario">${dado.nomeusuario}</td></tr>`)
+                $('#tbControle tbody').append(`<tr id=tr${dado.id}><td>${contador}</td><td class=nome>${dado.nomeproduto}</td><td class="marca">${dado.marca}</td><td class="categoria">${dado.categoria}</td><td class="operacao">${dado.operacao == 2 ? '<i style="color: green" class="fa fa-arrow-up" aria-hidden="true"></i>' : '<i style="color:red" class="fa fa-arrow-down" aria-hidden="true"></i>'}</td><td class="horario">${moment(dado.dataOperacao).format('DD/MM/YYYY HH:mm')}</td><td class="usuario">${dado.nomeusuario}</td></tr>`)
+                contador++
             })
         })
 }
@@ -199,4 +217,4 @@ downloadPdf = (link) => {
                 toastr.success('PDF Gerado com sucesso!')
             }
         })
-    }
+}

@@ -1,4 +1,4 @@
-const urlGrupo = "http://localhost:3000/grupo"
+let dadosUser = false;
 
 $(document).ready(function () {
     toastr.options = {
@@ -18,31 +18,35 @@ $(document).ready(function () {
         'hideMethod': 'fadeOut',
     }
 
-    var dadosUsuario = JSON.parse(localStorage.getItem('dadosUsuario'))
+    dadosUser = JSON.parse(localStorage.getItem('dadosUsuario'))
 
     if (window.location.href == 'http://localhost/projetoMHR/grupos.html') {
-        if (!dadosUsuario || dadosUsuario.id_grupo != 4) {
-            irNaoAutorizado()
+        if (dadosUser) {
+            buscarPermissao(dadosUser.email, dadosUser.senha).then(
+                function (response) {
+                    if (response.status) {
+                        if (response.message[0].perm_grupos) {
+                            inventario = JSON.parse(localStorage.getItem('inventario'))
+                            if (inventario) {
+                                $('.divInventario h4').css('display', 'block')
+                            }
+                            $('.accountName').append(dadosUser.nome)
+                            $('.nomeCompleto').val(dadosUser.nome)
+                            $('.emailUsuario').val(dadosUser.email)
+                            getListaGrupos()
+                        } else {
+                            window.location.href = "http://localhost/projetoMHR/erro401.html"
+                        }
+                    } else {
+                        toastr.warning(response.message)
+                    }
+                }
+            )
         } else {
-            $('.accountName').append(dadosUsuario.nome)
-            $('.nomeCompleto').val(dadosUsuario.nome)
-            $('.emailUsuario').val(dadosUsuario.email)
-            if (dadosUsuario.id_grupo != 4) {
-                $('.listaUsuarios').css('display', 'none')
-            }
-            getListaGrupos()
+            window.location.href = "http://localhost/projetoMHR/signIn.html"
         }
     }
 })
-
-getGrupos = () => {
-    axios.get(`${urlGrupo}/grupos`)
-        .then(response => {
-            response.data.forEach(dado => {
-                $('#grupoUsuario').append(`<option value=${dado.id}>${dado.nome}</option>`)
-            })
-        })
-}
 
 showAddGrupo = () => {
     $('.btnAddGroup').attr('disabled', true)
@@ -51,23 +55,26 @@ showAddGrupo = () => {
 }
 
 salvarGrupo = () => {
-    nome = $('#nomeGrupo').val()
-    checkDashboard = $('#checkDashboard').prop('checked') ? 1 : 0
-    checkUsuarios = $('#checkUsuarios').prop('checked') ? 1 : 0
-    checkProdutos = $('#checkProdutos').prop('checked') ? 1 : 0
-    checkControleUsuarios = $('#checkControleUsuarios').prop('checked') ? 1 : 0
+    grupo = {
+        checkDashboard: $('#checkDashboard').prop('checked') ? 1 : 0,
+        checkUsuarios: $('#checkUsuarios').prop('checked') ? 1 : 0,
+        checkProdutos: $('#checkProdutos').prop('checked') ? 1 : 0,
+        checkGrupoUsuarios: $('#checkGrupoUsuarios').prop('checked') ? 1 : 0,
+        checkInventario: $('#checkInventario').prop('checked') ? 1 : 0,
+        checkControle: $('#checkControle').prop('checked') ? 1 : 0,
+        checkCategorias: $('#checkCategorias').prop('checked') ? 1 : 0,
+        nome: $('#nomeGrupo').val()
+    }
+    grupo.nome = grupo.nome.replace(/'/g, '');
 
     axios.post(`${urlGrupo}`, {
-        nome,
-        checkDashboard,
-        checkProdutos,
-        checkUsuarios,
-        checkControleUsuarios
+        grupo
     })
         .then(response => {
             if (response.data.status) {
                 toastr.success(response.data.message)
                 $('#tbGrupos tbody').html('')
+                $('#nomeGrupo').val('')
                 getListaGrupos()
                 $('.btnAddGroup').attr('disabled', false)
                 $('#idCadastroGrupo').css('display', 'none')
@@ -85,12 +92,20 @@ closeAddGroup = () => {
 
 
 getListaGrupos = () => {
-    axios.get(`${urlGrupo}`)
-        .then(response => {
-            response.data.forEach(dado => {
-                $('#tbGrupos tbody').append(`<tr id="tr${dado.id}"><td class="idGrupo">${dado.id}</td><td class="nomeGrupo">${dado.nome}</td><td class="pUsuario" align="center">${dado.perm_usuarios ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td class="pProduto" align="center">${dado.perm_produtos ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td class="pDashboard" align="center">${dado.perm_dashboard ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td class="pGrupo" align="center">${dado.perm_grupos ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td align="center"><a id="editarGrupo${dado.id}" onclick="openModalEditarGrupo(${dado.id})" style="cursor:pointer;" class="on-default edit-row"><i style="color:orange" class="fa fa-pencil"></i></a></td></td><td align="center"><a id="removerGrupo${dado.id}" onclick="openModalRemoverGrupo(${dado.id})" style="cursor:pointer;" class="on-default edit-row"><i style="color:red" class="fa fa-trash-o"></i></a></td></td>`)
-            })
-        })
+    let contador = 1
+    $.ajax({
+        url: urlGrupo,
+        method: 'GET',
+        success: function (response) {
+            if (response.status) {
+                response.message.forEach(dado => {
+
+                    $('#tbGrupos tbody').append(`<tr id="tr${dado.id}"><td class="idGrupo">${contador}</td><td class="nomeGrupo">${dado.nome}</td><td class="pUsuario" align="center">${dado.perm_usuarios ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td class="pProduto" align="center">${dado.perm_produtos ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td class="pDashboard" align="center">${dado.perm_dashboard ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td class="pGrupo" align="center">${dado.perm_grupos ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td class="pInventario" align="center">${dado.perm_inventario ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td class="pControle" align="center">${dado.perm_controle ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td class="pCategorias" align="center">${dado.perm_categorias ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>'}</td><td align="center"><a id="editarGrupo${dado.id}" onclick="openModalEditarGrupo(${dado.id})" style="cursor:pointer;" class="on-default edit-row"><i style="color:orange" class="fa fa-pencil"></i></a></td></td><td align="center"><a id="removerGrupo${dado.id}" onclick="openModalRemoverGrupo(${dado.id})" style="cursor:pointer;" class="on-default edit-row"><i style="color:red" class="fa fa-trash-o"></i></a></td></td>`)
+                    contador++
+                })
+            }
+        }
+    })
 }
 
 openModalEditarGrupo = (id) => {
@@ -98,65 +113,95 @@ openModalEditarGrupo = (id) => {
     $('#permProdutosModal').prop('checked', false)
     $('#permGruposModal').prop('checked', false)
     $('#permDashboardModal').prop('checked', false)
+    $('#permInventarioModal').prop('checked', false)
+    $('#permControleModal').prop('checked', false)
+    $('#permCategoriasModal').prop('checked', false)
 
-    axios.get(`${urlGrupo}/${id}`)
-        .then(response => {
-            dados = response.data[0]
-            $('#nomeGrupoModal').val(dados.nome)
-            dados.perm_usuarios == 1 ? $('#permUsuarioModal').prop('checked', 'checked') : ''
-            dados.perm_produtos == 1 ? $('#permProdutosModal').prop('checked', 'checked') : ''
-            dados.perm_grupos == 1 ? $('#permGruposModal').prop('checked', 'checked') : ''
-            dados.perm_dashboard == 1 ? $('#permDashboardModal').prop('checked', 'checked') : ''
-        })
-    $('.btnGrupo').attr('onclick', 'editarGrupo(' + id + ')')
-    $('#modalGrupos').modal('show')
+    $.ajax({
+        url: `${urlGrupo}/${id}`,
+        method: 'GET',
+        success: function (response) {
+            if (response.status) {
+                dados = response.message[0]
+                $('#nomeGrupoModal').val(dados.nome)
+                dados.perm_usuarios ? $('#permUsuarioModal').prop('checked', 'checked') : ''
+                dados.perm_produtos ? $('#permProdutosModal').prop('checked', 'checked') : ''
+                dados.perm_grupos ? $('#permGruposModal').prop('checked', 'checked') : ''
+                dados.perm_dashboard ? $('#permDashboardModal').prop('checked', 'checked') : ''
+                dados.perm_inventario ? $('#permInventarioModal').prop('checked', 'checked') : ''
+                dados.perm_controle ? $('#permControleModal').prop('checked', 'checked') : ''
+                dados.perm_categorias ? $('#permCategoriasModal').prop('checked', 'checked') : ''
+                $('.btnGrupo').attr('onclick', 'editarGrupo(' + id + ')')
+                $('#modalGrupos').modal('show')
+            } else {
+                toastr.warning(response.message)
+            }
+        }
+    })
 }
 
 
 openModalRemoverGrupo = (id) => {
-    $('.btnExclusaoGrupo').attr('onclick', 'removerGrupo(' + id + ')')
-    $('#modalExclusaoGrupo').modal('show')
+    if (!inventario) {
+        $('.btnExclusaoGrupo').attr('onclick', 'removerGrupo(' + id + ')')
+        $('#modalExclusaoGrupo').modal('show')
+    } else {
+        toastr.warning('Inventário em andamento, não é possível excluir o grupo!')
+    }
 }
 
 editarGrupo = (id) => {
-    nome = $('#nomeGrupoModal').val()
-    pUsuario = $('#permUsuarioModal').prop('checked') ? 1 : 0
-    pProduto = $('#permProdutosModal').prop('checked') ? 1 : 0
-    pGrupo = $('#permGruposModal').prop('checked') ? 1 : 0
-    pDashboard = $('#permDashboardModal').prop('checked') ? 1 : 0
+    grupo = {
+        nome: $('#nomeGrupoModal').val(),
+        pUsuario: $('#permUsuarioModal').prop('checked') ? 1 : 0,
+        pProduto: $('#permProdutosModal').prop('checked') ? 1 : 0,
+        pGrupo: $('#permGruposModal').prop('checked') ? 1 : 0,
+        pDashboard: $('#permDashboardModal').prop('checked') ? 1 : 0,
+        pInventario: $('#permInventarioModal').prop('checked') ? 1 : 0,
+        pControle: $('#permControleModal').prop('checked') ? 1 : 0,
+        pCategorias: $('#permCategoriasModal').prop('checked') ? 1 : 0
+    }
 
-    axios.put(`${urlGrupo}/${id}`, {
-        nome,
-        pUsuario,
-        pProduto,
-        pGrupo,
-        pDashboard
-    })
-        .then(response => {
-            if (response.status == 200) {
+    grupo.nome = grupo.nome.replace(/'/g, '');
+
+    $.ajax({
+        url: `${urlGrupo}/${id}`,
+        method: 'PUT',
+        data: {
+            grupo
+        },
+        success: function (response) {
+            if (response.status) {
                 $(`#tbGrupos tbody #tr${id} .nomeGrupo`).text(response.data.nome)
-                $(`#tbGrupos tbody #tr${id} .pUsuario`).html(response.data.pUsuario ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>')
-                $(`#tbGrupos tbody #tr${id} .pProduto`).html(response.data.pProduto ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>')
-                $(`#tbGrupos tbody #tr${id} .pDashboard`).html(response.data.pDashboard ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>')
-                $(`#tbGrupos tbody #tr${id} .pGrupo`).html(response.data.pGrupo ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>')
+                $(`#tbGrupos tbody #tr${id} .pUsuario`).html(parseInt(response.data.pUsuario) ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>')
+                $(`#tbGrupos tbody #tr${id} .pProduto`).html(parseInt(response.data.pProduto) ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>')
+                $(`#tbGrupos tbody #tr${id} .pDashboard`).html(parseInt(response.data.pDashboard) ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>')
+                $(`#tbGrupos tbody #tr${id} .pGrupo`).html(parseInt(response.data.pGrupo) ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>')
+                $(`#tbGrupos tbody #tr${id} .pInventario`).html(parseInt(response.data.pInventario) ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>')
+                $(`#tbGrupos tbody #tr${id} .pControle`).html(parseInt(response.data.pControle) ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>')
+                $(`#tbGrupos tbody #tr${id} .pCategorias`).html(parseInt(response.data.pCategorias) ? '<i style="color:green" class="fa fa-check"></i>' : '<i style="color: red"class="fa fa-times"></i>')
                 $('#modalGrupos').modal('hide')
-                toastr.success('Grupo atualizado com sucesso!')
+                toastr.success(response.message)
             } else {
-                toastr.warning('Erro ao atualizar grupo')
+                toastr.warning(response.message)
             }
-
-        })
+        }
+    })
 }
 
 removerGrupo = (id) => {
-    axios.put(`${urlGrupo}/delete/${id}`)
-        .then(response => {
-            if (response.data.status) {
+    $.ajax({
+        url: `${urlGrupo}/delete/${id}`,
+        method: 'PUT',
+        data: { inventario, id },
+        success: function (response) {
+            if (response.status) {
                 $(`#tbGrupos tbody #tr${id}`).remove()
                 toastr.success(response.data.message)
                 $('#modalExclusaoGrupo').modal('hide')
             } else {
                 toastr.warning('Erro ao excluir grupo')
             }
-        })
+        }
+    })
 }

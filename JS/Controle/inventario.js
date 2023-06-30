@@ -1,4 +1,6 @@
 const urlInventario = 'http://localhost:3000/inventario'
+dadosUser = false
+inventario = false
 
 $(document).ready(function () {
     toastr.options = {
@@ -18,25 +20,29 @@ $(document).ready(function () {
         'hideMethod': 'fadeOut',
     }
 
-    var dadosUsuario = JSON.parse(localStorage.getItem('dadosUsuario'))
-
+    dadosUser = JSON.parse(localStorage.getItem('dadosUsuario'))
 
     if (window.location.href == 'http://localhost/projetoMHR/inventario.html') {
-        if (!dadosUsuario || dadosUsuario.id_grupo != 4) {
-            irNaoAutorizado()
-        } else {
-            (async () => {
-                const inventario = await getStatusInventario()
-                if (inventario) {
-                    getListaInventario()
+        if (dadosUser) {
+            buscarPermissao(dadosUser.email, dadosUser.senha).then(
+                function (response) {
+                    if (response.status) {
+                        if (response.message[0].perm_inventario) {
+                            inventario = JSON.parse(localStorage.getItem('inventario'))
+                            $('.accountName').append(dadosUser.nome)
+                            $('.nomeCompleto').val(dadosUser.nome)
+                            $('.emailUsuario').val(dadosUser.email)
+                            getListaInventario()
+                        } else {
+                            window.location.href = "http://localhost/projetoMHR/erro401.html"
+                        }
+                    } else {
+                        toastr.warning(response.message)
+                    }
                 }
-            })();
-            $('.accountName').append(dadosUsuario.nome)
-            $('.nomeCompleto').val(dadosUsuario.nome)
-            $('.emailUsuario').val(dadosUsuario.email)
-            if (dadosUsuario.id_grupo != 4) {
-                $('.listaUsuarios').css('display', 'none')
-            }
+            )
+        } else {
+            window.location.href = "http://localhost/projetoMHR/signIn.html"
         }
     }
 })
@@ -49,6 +55,7 @@ iniciarInventario = () => {
         success: function (response) {
             if (response.status) {
                 getListaInventario()
+                localStorage.setItem('inventario', 1)
                 toastr.success(response.message)
             } else {
                 toastr.warning(response.message)
@@ -68,6 +75,7 @@ finalizarInventario = () => {
             $('#btnFinalizarInventario').remove()
             if (response.status) {
                 $('#tbInventario tbody').html('')
+                localStorage.removeItem('inventario')
                 toastr.success('Processo do inventario finalizado com sucesso!')
             } else {
                 $('#btnInventario').attr('disabled', false)
@@ -101,15 +109,17 @@ getListaInventario = () => {
         method: 'GET',
         success: function (response) {
             if (response.status) {
-                $('#btnInventario').attr('disabled', true)
-                $('.btnListaInventario')
-                    .append(`<button class="btn btn-danger" style="margin: 0 15px 10px 15px;" data-toggle="tooltip"
-                data-placement="right" id="btnFinalizarInventario" onclick="finalizarInventario()"
-                title="">Finalizar Inventário</button>`)
-                response.data.forEach(produto => {
-                    $('#tbInventario tbody').append(`<tr><td>${contador}</td><td id="codigo${contador}">${produto.codigo}</td><td id="nome${contador}">${produto.nome}</td><td align="center" id="estoque${contador}">${produto.qtde_estoque}</td><td align="center" id="real${produto.id}"><input style="width:50%" type="number" name="qtde_real" value="${produto.qtde_estoque}"></td><td align="center" id="btnSalvarProdutoInventario${contador}"><button id="salvarProdutoInventario${contador}" onclick="salvarProdutoInventario(${produto.id})" type="button" class="btn btn-success btn-sm"><i class="fa fa-floppy-o"></i></button></td></tr>`)
-                    contador++
-                })
+                if (response.status_inv.status) {
+                    $('#btnInventario').attr('disabled', true)
+                    $('.btnListaInventario')
+                        .append(`<button class="btn btn-danger" style="margin: 0 15px 10px 15px;" data-toggle="tooltip"
+                    data-placement="right" id="btnFinalizarInventario" onclick="finalizarInventario()"
+                    title="">Finalizar Inventário</button>`)
+                    response.message.forEach(produto => {
+                        $('#tbInventario tbody').append(`<tr><td>${contador}</td><td id="codigo${contador}">${produto.codigo}</td><td id="nome${contador}">${produto.nome}</td><td align="center" id="estoque${contador}">${produto.qtde_estoque}</td><td align="center" id="real${produto.id}"><input style="width:50%" type="number" name="qtde_real" value="${produto.qtde_estoque}"></td><td align="center" id="btnSalvarProdutoInventario${contador}"><button id="salvarProdutoInventario${contador}" onclick="salvarProdutoInventario(${produto.id})" type="button" class="btn btn-success btn-sm"><i class="fa fa-floppy-o"></i></button></td></tr>`)
+                        contador++
+                    })
+                }
             } else {
                 toastr.warning(response.message)
             }

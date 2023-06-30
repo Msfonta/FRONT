@@ -98,7 +98,7 @@
 									Profile</a>
 							</li>
 							<li>
-								<a role="menuitem" tabindex="-1" href="signIn.html"><i class="fa fa-power-off"></i>
+								<a role="menuitem" tabindex="-1" href="javascript:logout()"><i class="fa fa-power-off"></i>
 									Logout</a>
 							</li>
 						</ul>
@@ -244,11 +244,35 @@
 											</label>
 										</div>
 										<div class="form-check">
-											<input class="form-check-input" type="checkbox" id="checkControleUsuarios"
+											<input class="form-check-input" type="checkbox" id="checkGrupoUsuarios"
 												style="cursor: pointer;">
 											<label style="color: black;" class="form-check-label"
-												for="checkControleUsuarios">
+												for="checkGrupoUsuarios">
 												Grupos de Usuário
+											</label>
+										</div>
+										<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="checkInventario"
+												style="cursor: pointer;">
+											<label style="color: black;" class="form-check-label"
+												for="checkInventario">
+												Inventário
+											</label>
+										</div>
+										<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="checkControle"
+												style="cursor: pointer;">
+											<label style="color: black;" class="form-check-label"
+												for="checkControle">
+												Controle
+											</label>
+										</div>
+										<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="checkCategorias"
+												style="cursor: pointer;">
+											<label style="color: black;" class="form-check-label"
+												for="checkCategorias">
+												Categorias
 											</label>
 										</div>
 									</div>
@@ -264,11 +288,14 @@
 										<thead>
 											<tr>
 												<th scope="col" width="1%">#</th>
-												<th scope="col" width="20%">Nome</th>
-												<th class="text-center" scope="col" width="5%">Perm. Usuários</th>
-												<th class="text-center" scope="col" width="5%">Perm. Produtos</th>
-												<th class="text-center" scope="col" width="5%">Perm. Dashboard</th>
-												<th class="text-center" scope="col" width="5%">Perm. Grupos</th>
+												<th scope="col" width="19%">Nome</th>
+												<th class="text-center" scope="col" width="10%">Perm. Usuários</th>
+												<th class="text-center" scope="col" width="10%">Perm. Produtos</th>
+												<th class="text-center" scope="col" width="10%">Perm. Dashboard</th>
+												<th class="text-center" scope="col" width="10%">Perm. Grupos</th>
+												<th class="text-center" scope="col" width="10%">Perm. Inventário</th>
+												<th class="text-center" scope="col" width="10%">Perm. Controle</th>
+												<th class="text-center" scope="col" width="10%">Perm. Categorias</th>
 												<th class="text-center" scope="col" width="5%">Editar</th>
 												<th class="text-center" scope="col" width="5%">Remover</th>
 											</tr>
@@ -339,6 +366,19 @@
 											<input type="checkbox" class="col-sm-1 form-check-input"
 												id="permDashboardModal">
 										</div>
+										<div class="form-group row">
+											<label for="gInventarioModal" class="col-sm-2">Inventario:</label>
+											<input type="checkbox" class="col-sm-1 form-check-input"
+												id="permInventarioModal">
+											<label for="gControleModal" class="col-sm-2">Controle:</label>
+											<input type="checkbox" class="col-sm-1 form-check-input"
+												id="permControleModal">
+										</div>
+										<div class="form-group row">
+											<label for="gControleModal" class="col-sm-2">Categoria:</label>
+											<input type="checkbox" class="col-sm-1 form-check-input"
+												id="permCategoriasModal">
+										</div>
 									</form>
 								</div>
 								<div class="modal-footer">
@@ -400,6 +440,8 @@
 
 	<!-- JS -->
 	<script src="JS/Usuarios/grupos.js"></script>
+	<script src="JS/Usuarios/usuarios.js"></script>
+	<script src="JS/Controle/inventario.js"></script>
 	<script type="text/javascript"
 		src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 

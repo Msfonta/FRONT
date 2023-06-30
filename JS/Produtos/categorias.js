@@ -1,5 +1,6 @@
 const urlCategoria = "http://localhost:3000/categoria"
 let inventario = false;
+dadosUser = false;
 
 $(document).ready(function () {
     toastr.options = {
@@ -18,29 +19,32 @@ $(document).ready(function () {
         'showMethod': 'fadeIn',
         'hideMethod': 'fadeOut',
     }
-    var dadosUsuario = JSON.parse(localStorage.getItem('dadosUsuario'))
+    dadosUser = JSON.parse(localStorage.getItem('dadosUsuario'))
 
     if (window.location.href == 'http://localhost/projetoMHR/categorias.html') {
-        if (!dadosUsuario || dadosUsuario.id_grupo != 4) {
-            irNaoAutorizado()
-        } else {
-            (async () => {
-                const inventario = await getStatusInventario()
-                if (inventario) {
-                    localStorage.setItem('inventario', inventario)
+        if (dadosUser) {
+            buscarPermissao(dadosUser.email, dadosUser.senha).then(
+                function (response) {
+                    if (response.status) {
+                        if (response.message[0].perm_categorias) {
+                            inventario = JSON.parse(localStorage.getItem('inventario'))
+                            if (inventario) {
+                                $('.divInventario h4').css('display', 'block')
+                            }
+                            $('.accountName').append(dadosUser.nome)
+                            $('.nomeCompleto').val(dadosUser.nome)
+                            $('.emailUsuario').val(dadosUser.email)
+                            getCategorias()
+                        } else {
+                            window.location.href = "http://localhost/projetoMHR/erro401.html"
+                        }
+                    } else {
+                        toastr.warning(response.message)
+                    }
                 }
-            })();
-            $('.accountName').append(dadosUsuario.nome)
-            $('.nomeCompleto').val(dadosUsuario.nome)
-            $('.emailUsuario').val(dadosUsuario.email)
-            if (dadosUsuario.id_grupo != 4) {
-                $('.listaUsuarios').css('display', 'none')
-            }
-            inventario = JSON.parse(localStorage.getItem('inventario'))
-            if(inventario){
-                $('.divInventario h4').css('display', 'block')
-            }
-            getCategorias()
+            )
+        } else {
+            window.location.href = "http://localhost/projetoMHR/signIn.html"
         }
     }
 
@@ -96,7 +100,6 @@ salvarCategoria = () => {
 
     axios.post(`${urlCategoria}/cadastro`, {
         nome,
-
     })
         .then(response => {
             if (response.data.status) {

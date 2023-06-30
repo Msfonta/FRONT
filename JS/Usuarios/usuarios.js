@@ -1,4 +1,6 @@
 const url = "http://localhost:3000/user"
+const urlGrupo = "http://localhost:3000/grupo"
+inventario = false;
 
 $(document).ready(function () {
     toastr.options = {
@@ -32,64 +34,117 @@ $(document).ready(function () {
         }
     })
 
-    var dadosUsuario = JSON.parse(localStorage.getItem('dadosUsuario'))
-
+    dadosUser = JSON.parse(localStorage.getItem('dadosUsuario'))
     if (window.location.href == 'http://localhost/projetoMHR/index.html') {
-        $('.accountName').append(dadosUsuario.nome)
-        $('.nomeCompleto').val(dadosUsuario.nome)
-        $('.emailUsuario').val(dadosUsuario.email)
-        if (dadosUsuario.id_grupo != 4) {
-            $('.listaUsuarios').css('display', 'none')
+        if (dadosUser) {
+            buscarPermissao(dadosUser.email, dadosUser.senha).then(
+                function (response) {
+                    if (response.status) {
+                        if (response.message[0].perm_usuarios) {
+                            $('.accountName').append(dadosUser.nome)
+                            $('.nomeCompleto').val(dadosUser.nome)
+                            $('.emailUsuario').val(dadosUser.email)
+                            getUser()
+                        } else {
+                            window.location.href = "http://localhost/projetoMHR/erro401.html"
+                        }
+                    } else {
+                        toastr.warning(response.message)
+                    }
+                }
+            )
+        } else {
+            window.location.href = "http://localhost/projetoMHR/signIn.html"
         }
     }
 
     if (window.location.href == 'http://localhost/projetoMHR/usuarios.html') {
-        if (dadosUsuario.id_grupo != 4) {
-            irNaoAutorizado()
+        if (dadosUser) {
+            buscarPermissao(dadosUser.email, dadosUser.senha).then(
+                function (response) {
+                    if (response.status) {
+                        if (response.message[0].perm_usuarios) {
+                            $('.accountName').append(dadosUser.nome)
+                            $('.nomeCompleto').val(dadosUser.nome)
+                            $('.emailUsuario').val(dadosUser.email)
+                            getUser()
+                        } else {
+                            window.location.href = "http://localhost/projetoMHR/erro401.html"
+                        }
+                    } else {
+                        toastr.warning(response.message)
+                    }
+                }
+            )
         } else {
-            $('.accountName').append(dadosUsuario.nome)
-            $('.nomeCompleto').val(dadosUsuario.nome)
-            $('.emailUsuario').val(dadosUsuario.email)
-            if (dadosUsuario.id_grupo != 4) {
-                $('.listaUsuarios').css('display', 'none')
-            }
-            getUser()
+            window.location.href = "http://localhost/projetoMHR/signIn.html"
         }
     }
 
     if (window.location.href == 'http://localhost/projetoMHR/myaccount.html') {
-        $('.accountName').append(dadosUsuario.nome)
-        $('.nomeCompleto').val(dadosUsuario.nome)
-        $('.emailUsuario').val(dadosUsuario.email)
+        $('.accountName').append(dadosUser.nome)
+        $('.nomeCompleto').val(dadosUser.nome)
+        $('.emailUsuario').val(dadosUser.email)
+        $('.editUsuario').attr('onclick', `editarUsuarioId(${dadosUser.id})`)
     }
-
-
 })
 
-irSignIn = () => {
-    window.location.href = "signIn.html"
+buscarPermissao = (email, senha) => {
+    return $.ajax({
+        url: `${url}/permissao`,
+        method: 'GET',
+        data: {
+            email,
+            senha
+        },
+    })
 }
 
-irHome = () => {
-    window.location.href = "index.html"
+
+editarUsuarioId = (id) => {
+        nome = $('.nomeCompleto').val(),
+        email = $('.emailUsuario').val()
+
+    $.ajax({
+        url: `${url}/${id}`,
+        method: 'PUT',
+        data: {
+            nome,
+            email
+        },
+        success: function (response) {
+            debugger
+            if (response.status) {
+                toastr.success(response.message)
+            } else {
+                toastr.warning(response.message)
+            }
+        }
+    })
 }
 
-irNaoAutorizado = () => {
-    window.location.href = "page401.html"
+getGrupos = () => {
+    $.ajax({
+        url: `${urlGrupo}/grupos`,
+        method: 'GET',
+        success: function (response) {
+            if (response.status) {
+                response.message.forEach(dado => {
+                    $('#grupoUsuario').append(`<option value=${dado.id}>${dado.nome}</option>`)
+                })
+            }
+        }
+    })
 }
-
-isUsuarios = () => {
-    window.location.href = "usuarios.html"
-}
-
 
 openModalUsuario = () => {
-    getGrupos()
     $('#modalUsuarioLabel').text('').append('Cadastrar Usuário')
     $('#formModalUsuario').each(function () {
         this.reset()
     })
+    $('#grupoUsuario').html('')
     $('.btnUsuario').attr('onclick', 'cadastroUsuario()')
+    getGrupos()
     $('#modalUsuario').modal('show')
 }
 
@@ -124,10 +179,14 @@ cadastroUsuario = () => {
                 toastr.warning(response.data.message)
             }
         })
-        .catch(error => {
-            toastr.warning(error.response.data.message)
-        })
 
+}
+
+logout = () => {
+    if (dadosUser) {
+        localStorage.removeItem('dadosUsuario')
+        window.location.href = "http://localhost/projetoMHR/signIn.html"
+    }
 }
 
 login = () => {
@@ -141,15 +200,14 @@ login = () => {
     })
         .then(response => {
             if (response.data.status) {
-                localStorage.setItem('dadosUsuario', JSON.stringify(response.data.usuario[0]))
+                localStorage.setItem('dadosUsuario', JSON.stringify(response.data.usuario))
                 localStorage.setItem('token', JSON.stringify(response.data.token))
                 localStorage.setItem('isLogged', true)
-                irHome()
+                window.location.href = "http://localhost/projetoMHR/index.html"
             } else {
                 toastr.warning(response.data.message)
             }
         })
-        .catch(error => console.log(error))
 }
 
 authToUsuarios = () => {
@@ -226,18 +284,26 @@ exclusaoUsuario = (id, reativar) => {
 
 
 openModalEditarUsuario = (id) => {
-    getGrupos()
+    $('#formModalUsuario').each(function () {
+        this.reset()
+    })
+    $('#grupoUsuario').empty()
     $('#modalUsuarioLabel').text('').append('Editar Usuário')
-    $('#grupoUsuario').html('')
+    getGrupos()
 
-    axios.get(`${url}/${id}`)
-        .then(response => {
-            dados = response.data[0]
-            $('#idUsuarioModal').val(dados.id)
-            $('#nomeUsuarioModal').val(dados.nome)
-            $('#emailUsuarioModal').val(dados.email)
-            $(`#grupoUsuario option[value=${dados.grupo}]`).attr('selected', 'selected')
-        })
+    $.ajax({
+        url: `${url}/${id}`,
+        method: 'GET',
+        success: function (response) {
+            if (response.status) {
+                dados = response.message[0]
+                $('#idUsuarioModal').val(dados.id)
+                $('#nomeUsuarioModal').val(dados.nome)
+                $('#emailUsuarioModal').val(dados.email)
+                $(`#grupoUsuario option[value=${dados.grupo}]`).attr('selected', 'selected')
+            }
+        }
+    })
     $('.btnUsuario').attr('onclick', `editarUsuario(${id})`)
     $('#modalUsuario').modal('show')
 }
@@ -269,14 +335,15 @@ editarUsuario = (id) => {
 }
 
 getUser = () => {
-    usuario = JSON.parse(localStorage.getItem('dadosUsuario'))
-
-    axios.get(`${url}`)
-        .then(response => {
-            response.data.forEach(dado => {
-                $('#tbUsuarios tbody').append(`<tr id="tr${dado.id}"><td class="id">${dado.id}</td><td class="nome">${dado.nome}</td><td class="email">${dado.email}</td><td align="center" class="grupo">${dado.grupo}</td><td align="center" ><a onclick="openModalEditarUsuario(${dado.id})" class="on-default edit-row" style="cursor:pointer;"><i id="cbEditarUsuario(${dado.id})" style="color:orange" class="fa fa-pencil"></i></a></td><td align="center"><a onclick="openModalExclusaoUsuario(${dado.id}, ${dado.excluido == 1 ? true : false})" class="on-default modal-basic"><input id="cbExcluirUsuario${dado.id}" style="cursor:pointer;" type="checkbox" ${dado.excluido == 1 ? 'checked' : ''} ></a></td></tr>`)
-            })
-            $('.nameUsuario').append(usuario.nome)
-        })
-        .catch(error => console.log(error))
+    $.ajax({
+        url: url,
+        method: 'GET',
+        success: function (response) {
+            if (response.status) {
+                response.message.forEach(dado => {
+                    $('#tbUsuarios tbody').append(`<tr id="tr${dado.id}"><td class="id">${dado.id}</td><td class="nome">${dado.nome}</td><td class="email">${dado.email}</td><td align="center" class="grupo">${dado.grupo}</td><td align="center" ><a onclick="openModalEditarUsuario(${dado.id})" class="on-default edit-row" style="cursor:pointer;"><i id="cbEditarUsuario(${dado.id})" style="color:orange" class="fa fa-pencil"></i></a></td><td align="center"><a onclick="openModalExclusaoUsuario(${dado.id}, ${dado.excluido == 1 ? true : false})" class="on-default modal-basic"><input id="cbExcluirUsuario${dado.id}" style="cursor:pointer;" type="checkbox" ${dado.excluido == 1 ? 'checked' : ''} ></a></td></tr>`)
+                })
+            }
+        }
+    })
 }
