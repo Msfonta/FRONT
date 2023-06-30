@@ -50,9 +50,6 @@ $(document).ready(function () {
 
 })
 
-irNaoAutorizado = () => {
-    window.location.href = "pages404.html"
-}
 
 getCategorias = () => {
     let contador = 1
@@ -104,8 +101,10 @@ salvarCategoria = () => {
         .then(response => {
             if (response.data.status) {
                 $('#tbCategorias tbody').html('')
+                $('#nomeCategoria').val('')
                 getCategorias()
                 $('.btnAddCategoria').attr('disabled', false)
+                $('#idCadastroCategoria').css('display', 'none')
                 toastr.success(response.data.message)
             } else {
                 toastr.warning(response.data.message)
