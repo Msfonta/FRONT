@@ -94,6 +94,7 @@ showEditarCategoria = (id) => {
 
 salvarCategoria = () => {
     nome = $('#nomeCategoria').val()
+    nome = nome.replace(/'/g, '');
 
     axios.post(`${urlCategoria}/cadastro`, {
         nome,
@@ -115,6 +116,8 @@ salvarCategoria = () => {
 
 editarCategoria = (id) => {
     nome = $('#nomeCategoria').val()
+    nome = nome.replace(/'/g, '');
+
     axios.put(`${urlCategoria}/${id}`, {
         nome
     })
